@@ -1,0 +1,128 @@
+#include "shell.h"
+
+/**
+ * _strchr - splices the string by returning the matching charcter of s
+ * @s: string to be used
+ * @c: charcter to be searched
+ * Return: returns the first occurnce of c to the end of the string
+ *         returns NULL if the character not found
+ */
+
+char *_strchr(char *s, char c)
+{
+	while (*s++ != '\0')
+	{
+		if (*s == c)
+		{
+			return (s);
+		}
+	}
+
+	return (s);
+}
+/**
+ * _strspn - eturns the length of the initial substring of the string
+ *           pointed to
+ *           by s that is made up of only those character contained in the
+ *           string pointed to by accept.
+ * @s: string to be scanned
+ * @accept: array of chars to be checked
+ * Return:  returns the number of characters
+ *          in the initial segment of swhich consist
+ *          only of characters from ccept
+ */
+
+unsigned int _strspn(char *s, char *accept)
+{
+	unsigned int i = 0, j = 0, k = 0;
+	int flag = 0;
+
+	while (s[j] != '\0')
+	{
+		k = 0;
+		flag = 0;
+
+		while (accept[k] != '\0')
+		{
+			if (s[j] == accept[k])
+			{
+				i++;
+				flag = 1;
+				break;
+			}
+
+			k++;
+		}
+
+		if (flag == 0)
+		{
+			break;
+		}
+
+		j++;
+	}
+
+	return (i);
+}
+/**
+ * _strpbrk - slices the string and returns the remaining the rest of the str
+ * @s: source string to be spiced
+ * @accept: the str used to screen s
+ *
+ * Return: returns the pointer begining for str spliced after char from s
+ *         is found
+ *         returns null if not found
+ */
+char *_strpbrk(char *s, char *accept)
+{
+	int i = 0, j = 0;
+
+	while (s[i] != '\0')
+	{
+		j = 0;
+
+		while (accept[j] != '\0')
+		{
+			if (s[i] == accept[j])
+			{
+				return (s + i);
+			}
+
+			j++;
+
+		}
+
+		i++;
+	}
+
+	return (NULL);
+}
+/**
+ * _strstr - Finds the first occurrence of the substring
+ *           needle in the string haystack
+ * @haystack: String to be searched
+ * @needle: Substring to search for
+ * Return: Pointer to the first occurrence
+ *         of needle in haystack, or NULL if not found
+ */
+char *_strstr(char *haystack, char *needle)
+{
+	int i, j;
+
+	if (needle == NULL)
+		return (NULL);
+
+	for (i = 0; haystack[i] != '\0'; i++)
+	{
+		for (j = 0; needle[j] != '\0' && haystack[i + j] == needle[j]; j++)
+		{
+		}
+
+		if (needle[j] == '\0')
+		{
+			return (haystack + i);
+		}
+	}
+
+	return (NULL);
+}
