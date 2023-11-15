@@ -13,14 +13,13 @@ char *_strcat(char *dest, char *src)
 
 	i =  _strlen(dest);
 	new_length = i + _strlen(src);
-
 	while (src[j] != '\0')
 	{
 		dest[i + j] = src[j];
 		j++;
 	}
 
-	dest[new_length] = '\0';
+	*(dest + new_length) = '\0';
 
 	return (dest);
 }
@@ -109,6 +108,5 @@ int _strlen(const char *s)
 
 	while (s && s[l])
 		++l;
-
 	return (l);
 }

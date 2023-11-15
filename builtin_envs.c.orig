@@ -1,0 +1,155 @@
+#include "shell.h"
+/**
+ * add_environment_variable - Add a new environment variable.
+ * @sh: Pointer to the shell structure.
+ * @env: environment variables
+ * @i: loop tracker
+ * Return: 0 on success, 1 on failure.
+ */
+int add_environment_variable(g_var **sh, char **env, int *i)
+{
+	char *temp = NULL;
+	int tokln1 = _strlen((*sh)->tokens[1]), tokln2 = _strlen((*sh)->tokens[2]);
+
+	if ((*sh)->added_envs >= MAX_ENVS)
+		return (1);
+
+	temp = _calloc(tokln1 + tokln2 + 2, sizeof(char));
+
+	if (!temp)
+		return (1);
+
+	_strcpy(temp, (*sh)->tokens[1]);
+	_strcat(temp, "=");
+	_strcat(temp, (*sh)->tokens[2]);
+
+	env[*i] = temp;
+	(*sh)->pointers[(*sh)->added_envs] = env[*i];
+	(*sh)->added_envs++;
+
+	return (0);
+}
+
+/**
+ * _setenv - it set environment var for the current proccess
+ *
+ * @sh: global variable containig variable to be set.
+ * Return: returns 0 on success and -1 on error
+ */
+int _setenv(g_var **sh)
+{
+	char *copy = NULL, *cp = NULL;
+	char **env = (*sh)->environs;
+	int i = 0, k = 0,  old = 0, nw_size = 0;
+
+    if ((*sh)->num_tokens == 2)
+    {
+        usage_err("Usage: setenv VARIABLE VALUE");
+		return (1);
+    }
+	if (str_contains((*sh)->tokens[2], '='))
+	{
+		usage_err("Usage: setenv VARIABLE VALUE");
+		return (1);
+	}
+	if ((*sh)->pointers ==  NULL)
+		(*sh)->pointers = malloc(sizeof(char *) * 1);
+	else
+	{
+		old = (sizeof(char *) * ((*sh)->added_envs));
+		nw_size = (sizeof(char *) * ((*sh)->added_envs + 1));
+		(*sh)->pointers = _realloc((*sh)->pointers, old, nw_size);
+	}
+	while (env[k] != NULL)
+		k++;
+	while (env[i] != NULL)
+	{
+		cp = _strdup(env[i]);
+		copy = _strtok(cp, "=");
+		if (_strcmp((*sh)->tokens[1], copy) == 0)
+		{
+			add_environment_variable(sh, env, &i);
+			free(cp);
+			return (0);
+		}
+		free(cp);
+		i++;
+	}
+	add_environment_variable(sh, env, &i);
+	env[i + 1] = NULL;
+
+	return (0);
+}
+/**
+ * _unsetenv - it Remove environment var for the current proccess
+ *
+ * @sh: gloabal variables.
+ * Return: return 0 if success and -1 if faild
+ */
+int _unsetenv(g_var **sh)
+{
+	char *copy = NULL, *cp;
+	char **env = (*sh)->environs;
+	int i = 0, j = 0, k = 0;
+
+	if ((*sh)->tokens[1] == NULL)
+	{
+		usage_err("unsetenv: not enough arguments");
+		return (1);
+	}
+
+	if (str_contains((*sh)->tokens[1], '='))
+	{
+		usage_err("Usage: unsetenv VARIABLE");
+		return (1);
+	}
+
+
+	while (env[k] != NULL)
+		k++;
+
+	while (env[i] != NULL)
+	{
+		cp = _strdup(env[i]);
+		copy = _strtok(cp, "=");
+		if (_strcmp((*sh)->tokens[1], copy) == 0)
+		{
+			env[i] = NULL;
+			j = i;
+			free(cp);
+			break;
+		}
+		free(cp);
+		i++;
+	}
+	while (j < k)
+	{
+		env[j] = env[j + 1];
+		j++;
+	}
+	return (0);
+}
+/**
+ * _printenv - Gets the value of an environment variable.
+ * @sh: The global environment variable to retrieve.
+ * Return: 0 if succes , -1 otherwise.
+ */
+int _printenv(g_var **sh)
+{
+	char **env = (*sh)->environs;
+	int i = 0;
+
+	if (env == NULL)
+	{
+		return (1);
+	}
+
+	while (env[i] != NULL)
+	{
+		_puts(env[i]);
+		_puts("\n");
+		i++;
+	}
+
+	return (0);
+}

@@ -1,0 +1,66 @@
+#include "shell.h"
+
+/**
+ * _echo - Display a message with variable substitution.
+ * @sh: Pointer to the shell structure.
+ * Return: 0 on success, 1 on failure.
+ */
+int _echo(g_var **sh)
+{
+    int int_ln = int_len((*sh)->status_code);
+    int i = 0, pi_ln = 0;
+    int len2 = strlen((*sh)->tokens[0]) + 1, count = 0;
+    char *status = NULL, *buf = NULL, *str = NULL;
+    pid_t pid = getpid();
+
+    if (!(*sh)->command)
+        return (1);
+
+    remove_emptyspaces(&((*sh)->command));
+    while ((*sh)->command[len2 + count])
+        count++;
+
+    pi_ln = int_len(pid);
+    buf = _calloc((pi_ln + count + int_ln + 1), sizeof(char));
+    str = _calloc(_strlen((*sh)->command) + 2, sizeof(char));
+    _strcpy(str, (*sh)->command);
+
+    if (!buf)
+        handle_error("Error allocating memory");
+
+    for (i = 0; str[len2 + i] != '\0'; ++i)
+    {
+        status = _calloc(pi_ln + int_ln + 1, sizeof(char));
+
+        if ((*sh)->command[len2 + i] == '$')
+        {
+            if ((*sh)->command[len2 + i + 1] == '?')
+            {
+                status = int_str(status, (*sh)->status_code, int_ln);
+                _strcat(buf, status);
+                i += 2;
+            }
+            else if ((*sh)->command[len2 + i + 1] == '$')
+            {
+                status = int_str(status, pid, pi_ln);
+                _strcat(buf, status);
+                i += 2;
+            }
+            else
+                buf[i] = (*sh)->command[len2 + i];
+        }
+        else
+            buf[i] = (*sh)->command[len2 + i];
+
+        free(status);
+        status = NULL;
+    }
+
+    if (write(1, buf, _strlen(buf)) == -1)
+        handle_error("Error writing to stdout");
+
+    _puts("\n");
+    free(buf);
+    free(str);
+    return (0);
+}

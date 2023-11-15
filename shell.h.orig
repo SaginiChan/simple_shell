@@ -12,7 +12,6 @@
 #include <string.h>
 #include <errno.h>
 
-#define MAX_ENVS 100
 #define MAXSIZE 1024
 #define BUFFERSIZE 120
 #define FLAG 0
@@ -21,24 +20,15 @@ extern int flag;
 extern char **environ;
 /**
  * struct g_var - Shell variables struct
- * @status_code: Prompt flag(true or false)
- * @size: Buffer pointer
+ * @PROMPT: Prompt flag(true or false)
+ * @buf: Buffer pointer
  * @command: Command pointer
  * @PATH: path to cmd programs
  * @process_id: Process ID
  * @num_tokens: Number of tokens
  * @environs: array of environment variables
- * @size: Size of buffer array
- * @nread: number of characters read
- * @buffer: array of environment variables
- * @prog_name: Size of fin array
- * @tokens: number of characters read
- * @added_envs: array of environment variables
- * @pointers: Size of fin array
- * @alias: number of characters read
- * @alias_size: array of environment variables
- * @flag: flag used to show signal statur
- * @exit_status: number of characters read
+ * @size: Size of fin array
+ * @chRead: number of characters read
  */
 typedef struct g_var
 {
@@ -54,12 +44,12 @@ typedef struct g_var
 	char **pointers;
 	char **alias;
 	int alias_size;
-	int flag;
+    int flag;
 	int exit_status;
 	int status_code;
 	size_t size;
 	ssize_t nread;
-} g_var;
+}g_var;
 typedef struct g_var gbf_var;
 /**
  * struct cmd_list - singly linked list of commands
@@ -76,9 +66,9 @@ typedef struct cmd_list
 	struct cmd_list *next;
 } cmd_list;
 /**
- * struct built_ins - Struct
+ * struct built_ins - Struct 
  *
- * @str: The operator
+ * @op: The operator
  * @f: The function associated
  */
 typedef struct built_ins
@@ -97,10 +87,10 @@ typedef struct built_ins
  */
 typedef struct cmd_n_list
 {
-	char *str;
-	char *symbol;
-	unsigned int len;
-	struct cmd_n_list *next;
+    char *str;
+    char *symbol;
+    unsigned int len;
+    struct cmd_n_list *next;
 } cmd_n_list;
 /**
  * _isprint - checks for non printable characters
@@ -151,8 +141,8 @@ char *_strncpy(char *dest, char *src, int n);
 void remove_extra_spaces(char **str);
 /**
  * remove_emptyspaces - remove white spaces
- * @str: string to remove white spaces
- *
+ * @str - string to remove white spaces
+ * 
 */
 void remove_emptyspaces(char **str);
 /**
@@ -231,12 +221,6 @@ void _puts(char *str);
  */
 int _putchar(char c);
 /**
- * print_alias - Print all defined aliases.
- * @sh: Pointer to the shell structure.
- * Return: Always 0.
- */
-int print_alias(g_var *sh);
-/**
  * _memcpy - copies n bytes from memory area src to memory
  *           area dest
  * @dest: destination memory area of src
@@ -282,7 +266,7 @@ size_t _getline(char **lptr, size_t *n, FILE *stream);
 void shell_prompt(g_var **sh);
 /**
  * free_mem - frees memory previousely allocated
- * @bufferr: buffer to be freed
+ * @buffer: buffer to be freed
 */
 void free_mem(char *bufferr);
 /**
@@ -299,6 +283,7 @@ void cleanup(g_var *shell);
 /**
  * exiting - converts str to int status.
  * @shell: stract passed to access the array of commands.
+ * @prog_name: string to be converted.
  * Return: returns 0 on succes
  *                 -1 on failuire
  */
@@ -316,27 +301,6 @@ void sigint_handler(int sig);
  */
 
 char *_strdup(char *str);
-/**
- * str_contains - checks if a character is contained in a variable
- *
- * @str: the striing to inspect.
- * @ch: the character being ispected.
- *
- * Return: returns true if char found and false if not found.
- *
- */
-int str_contains(char *str, char ch);
-/**
- * check_single_quote - Add single quotes to a string if not present.
- * @str: Pointer to the string to check.
- * Return: 1 if modified, 0 if not.
- */
-int check_single_quote(char **str);
-/**
- * cleanup_and_free_tokens - Free the tokens array and perform cleanup.
- * @sh: Pointer to the shell structure.
- */
-void cleanup_and_free_tokens(g_var *sh);
 /** COMMAND LIST OPERATIONS*/
 /**
  * input_check - checks if command is comlete
@@ -350,19 +314,18 @@ void input_check(g_var *sh);
 void free_env(g_var *sh);
 /**
  * process_commands - prints contents of the list
- * @head: poiter to the first node cmd list colons
- * @h: poiter to the first node cmd list symbols
- * @sh: gloabal variables
+ * @h: poiter to the first node
+ * 
  * Return: returns number of nodes in the lis
- *
+ * 
 */
 size_t process_commands(const cmd_list *h, g_var *sh, cmd_n_list **head);
 /**
- * process_cmd_symbols - prints contents of the list
+ * process_commands - prints contents of the list
  * @h: poiter to the first node
- * @sh: global variables
+ * 
  * Return: returns number of nodes in the lis
- *
+ * 
 */
 size_t process_cmd_symbols(const cmd_n_list *h, g_var *sh);
 /**
@@ -374,7 +337,7 @@ size_t process_cmd_symbols(const cmd_n_list *h, g_var *sh);
 void free_listint_safe(cmd_n_list **h);
 /**
  * free_list - frees all the node in a list and reset the head to NULL.
- * @h: pointer of pointer to a list.
+ * @head: pointer of pointer to a list.
  */
 void free_list_cmd(cmd_list **h);
 /**
@@ -382,21 +345,30 @@ void free_list_cmd(cmd_list **h);
  * @shell: Pointer to the shell structure to be cleaned.
  */
 void refresh(g_var *shell);
+/**
+ * get_built_in - selects the correct function to perform
+ *               the operation aske by the user
+ * @shell: struct containing lobal variabkes
+ * @str: string to be searched
+ * Return: returns a pointer to the function foun
+ *         returns NULL if not found
+ */
 int (*get_built_in(g_var *shell, char *str))(g_var **shell);
 /**
  * check_cmd_exist - Checks if a cmd exists in the PATH environment variable.
  *
  * @term_cm: Command to check.
+ * @shell: The pointer to struct variables to execute.
  * Return: The command if it exists, NULL otherwise.
  */
 
 char *check_cmd_exist(char *term_cm);
 /**
- * check_symbols - it checks if symbol exists if
+ * check_symbols - it checks if symbol exists if 
  *                   exists breaks the command into list
  * @sh: global variable in struct
  * @head: head of the list;
- *
+ * 
 */
 void check_symbols(g_var **sh, cmd_n_list **head);
 /**
@@ -415,7 +387,6 @@ cmd_list *add_node_end(cmd_list **head, const char *str);
  * add_node_end - adds node at the end of the list
  * @head: its the head of the lis
  * @str: string data to add
- * @sym: symbol to be tracked
  * Return: returns the pointer to address of the added node
 */
 cmd_n_list *add_node_end_sym(cmd_n_list **head, const char *str, char *sym);
@@ -423,8 +394,7 @@ cmd_n_list *add_node_end_sym(cmd_n_list **head, const char *str, char *sym);
  * tokenize - tokenize the string and save them in an arrray
  * @arr: array to be modifieda and save tokens
  * @strn: string to be tokenized
- * @delim: delimeter used to tokenize a string
- * Return: returns size of the string array
+ * @dlim: delimeter used to tokenize a string
 */
 int tokenize(char ***arr, char *strn, char *delim);
 /**
@@ -453,12 +423,11 @@ int _alias(g_var **sh);
 int _cd(g_var **sh);
 /* END COMMAND OPERATIONS */
 /**
- * check_semicolon - it checks if colon exists if
+ * check_semicolon - it checks if colon exists if 
  *                   exists breaks the command into list
  * @sh: global variable in struct
  * @head: head of the list;
- *
- * Return: return 1 if semicolon found and 0 otherwise
+ * 
 */
 int check_semicolon(g_var **sh, cmd_list **head);
 /**
@@ -530,7 +499,7 @@ int _printenv(g_var **sh);
  * _setenv - it set environment var for the current proccess
  *
  * @sh: global variable containig variable to be set.
- * Return: returns 0 on success and -1 on error
+ * Return : returns 0 on success and -1 on error
  */
 int _setenv(g_var **sh);
 /**
@@ -557,11 +526,10 @@ int _atoi(char *str);
 /* END OF STRING TO INT */
 /*CHECK STAGES*/
 /**
- * hasSymbols - it checks if symbols exists if
+ * hasSymbols - it checks if symbols exists if 
  *                   exists breaks the command into list
  * @sh: global variable in struct
- *
- * Return: returns 1 if true and 0 if false
+ * 
 */
 int hasSymbols(g_var **sh);
 /*CHECK STAGES*/

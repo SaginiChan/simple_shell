@@ -1,7 +1,7 @@
 #include "shell.h"
 /**
  * check_chars - checks if chars_read is -1
- *		if true it exit the shell
+ * 				if true it exit the shell
  * @charsRead: number of characters read
  * @man_buf: bufer to be freed in case of error
 */
@@ -42,7 +42,6 @@ size_t read_buffer(int fd, char **man_buf, size_t *n)
 		*(*man_buf + len) = ' ';
 		len++;
 	}
-
 	while ((charsRead = read(fd, buffer, sizeof(buffer))) > 0)
 	{
 		totalCharsRead += charsRead;

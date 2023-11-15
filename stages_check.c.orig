@@ -1,0 +1,258 @@
+#include "shell.h"
+/**
+ * hasSymbols - it checks if symbols exists if 
+ *                   exists breaks the command into list
+ * @sh: global variable in struct
+ * 
+*/
+int hasSymbols(g_var **sh)
+{
+    char *hasSymbols[] = {"&&", "||", "#", NULL };
+    int i = 0, j = 0;
+    
+    while (hasSymbols[i])
+    {
+        for (j = 0; j < (*sh)->num_tokens - 1; j++)
+        {
+            if (_strcmp((*sh)->tokens[j], hasSymbols[i]) == 0)
+            {
+                return (1);
+            }
+        }
+        i++;
+    }
+    return (0);
+}
+
+/**
+ * check_semicolon - it checks if colon exists if 
+ *                   exists breaks the command into list
+ * @sh: global variable in struct
+ * @head: head of the list;
+ * 
+*/
+int check_semicolon(g_var **sh, cmd_list **head)
+{
+    int i = 0, flg = 0;
+    char *str = NULL, *strd = NULL;
+
+
+    while ((*sh)->buffer && (*sh)->buffer[i])
+    {
+        if ((*sh)->buffer[i] == ';')
+        {
+            flg = 1;
+            break;
+        }
+        i++;
+        
+    }
+    if (flg == 1)
+    {
+        strd = _strdup((*sh)->buffer);
+        str =_strtok(strd, ";");
+        while (str)
+        {
+            add_node_end(head, str);
+            str = _strtok(NULL, ";");
+        }
+        free(strd);
+        return (1);
+    }
+    else
+    {
+        return (0);
+    }
+
+}
+/**
+ * get_built_in - selects the correct function to perform
+ *               the operation aske by the user
+ * @shell: struct containing lobal variabkes
+ * @str: string to be searched
+ * Return: returns a pointer to the function foun
+ *         returns NULL if not found
+ */
+int (*get_built_in(g_var *shell, char *str))(g_var **shell)
+{
+    	built_ins builtis[] = {
+		{"setenv", _setenv},
+		{"unsetenv", _unsetenv},
+		{"exit", exiting},
+        {"env", _printenv},
+		{"echo", _echo},
+        {"alias", _alias},
+        {"cd", _cd},
+		{NULL, NULL}
+	};
+	int i = 0;
+    if (shell->buffer)
+    {
+    }
+    
+
+	while (builtis[i].str != NULL)
+	{
+
+		if (_strcmp(builtis[i].str, str) == 0)
+		{
+			return (builtis[i].f);
+		}
+        i++;
+	}
+
+	return (NULL);
+}
+/**
+ * is_balanced_quotes - Checks if the input string has
+ *                      balanced single and double quotes.
+ * @buffer: The input string to be checked for balanced quotes.
+ *
+ * Return: Returns 1 if the input has balanced quotes, 0 otherwise.
+ */
+int is_balanced_quotes(const char *buffer)
+{
+    int single_quotes = 0;
+    int double_quotes = 0, i = 0;
+
+    for (i = 0; buffer[i] != '\0'; i++) {
+        if (buffer[i] == '\'') {
+            single_quotes = 1 - single_quotes;
+        }
+        else if (buffer[i] == '\"') {
+            double_quotes = 1 - double_quotes;
+        }
+    }
+
+    return (single_quotes == 0) && (double_quotes == 0);
+}
+/**
+ * input_check - checks if command is complete
+ * @sh: global variables
+ */
+void input_check(g_var *sh)
+{
+    int num = sh->num_tokens - 2;
+
+    if (_strcmp(sh->tokens[num], "||") == 0 ||
+        _strcmp(sh->tokens[num], "&&") == 0 ||
+        _strcmp(sh->tokens[num], "|") == 0)
+    {
+        free_arr(&(sh->tokens), sh->num_tokens);
+
+        _puts("> ");
+        while (1) {
+            _getline(&(sh->buffer), &(sh->size), stdin);
+            if (is_balanced_quotes(sh->buffer)) {
+                break;
+            } else {
+                _puts(">> ");
+            }
+        }
+        sh->num_tokens = tokenize(&(sh->tokens), sh->buffer, " ");
+    }
+    else if (is_balanced_quotes(sh->buffer) == 0)
+    {
+        _puts("> ");
+        while (1)
+        {
+            _getline(&(sh->buffer), &(sh->size), stdin);
+            if (is_balanced_quotes(sh->buffer))
+                break;
+            _puts("> ");
+        }
+        return;
+    }
+    else
+    {
+        return;
+    }
+    
+    input_check(sh);
+}
+
+/**
+ * check_symbols - it checks if symbol exists if 
+ *                   exists breaks the command into list
+ * @sh: global variable in struct
+ * @head: head of the list;
+ * 
+*/
+void check_symbols(g_var **sh, cmd_n_list **head)
+{
+    int i = 0, j = 0;
+    char *buf = malloc(sizeof(char) * _strlen((*sh)->command)  + 1);
+    _memset(buf, 0, _strlen((*sh)->command));
+
+        while ((*sh)->command && (*sh)->command[i])
+        {
+          if((*sh)->command[i] == '|' && (*sh)->command[i+1] == '|')
+          {
+             add_node_end_sym(head, buf, "||");
+            free(buf);
+            buf = NULL;
+            buf = malloc(sizeof(char) * _strlen((*sh)->command)  + 1);
+            _memset(buf, 0, _strlen((*sh)->command));
+            j = 0;
+            i++;
+          }else if((*sh)->command[i] == '&' && (*sh)->command[i+1] == '&')
+          {
+            add_node_end_sym(head, buf, "&&");
+            free(buf);
+            buf = NULL;
+            buf = malloc(sizeof(char) * _strlen((*sh)->command)  + 1);
+            _memset(buf, 0, _strlen((*sh)->command));
+            j = 0;
+            i++;
+          }
+          else
+          {
+            buf[j] = (*sh)->command[i];
+                      
+          j++;
+          }
+          i++;
+        }
+        if (buf != NULL)
+        {
+            add_node_end_sym(head, buf, NULL);
+        }
+        free(buf);
+}
+/**
+ * process_hsh_sym - check availability and validity of  #symbol
+ * @sh: global variables
+*/
+void process_hsh_sym(g_var **sh)
+{
+    int pos = 0, i = 0, space = 0, flag = 0, len = 0, j = 1;
+
+    while ((*sh)->tokens && (*sh)->tokens[i])
+    {
+        if ((pos = _strspn((*sh)->tokens[i], "#")) == 1)
+        {
+            flag = 1;
+            break;
+        }
+        len += _strlen((*sh)->tokens[i]);
+        space++;
+        i++;
+    }
+    if (flag == 1)
+    {
+        free((*sh)->buffer);
+        (*sh)->buffer = NULL;
+        (*sh)->buffer = _calloc(len + space, sizeof(char));
+        i = 0;
+        j = 1;
+        while (j < space)
+        {
+            _strcat((*sh)->buffer, (*sh)->tokens[i]);
+            _strcat((*sh)->buffer, " ");
+            i++;
+            j++;
+        }
+        _strcat((*sh)->buffer, (*sh)->tokens[i]);
+    }
+    
+}
