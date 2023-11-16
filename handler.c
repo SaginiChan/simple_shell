@@ -22,7 +22,8 @@ void refresh(g_var *shell)
 {
 	g_var *sh = shell;
 
-	free_arr(&(sh->tokens), sh->num_tokens);
+	if (sh->tokens)
+		free_arr(&(sh->tokens), sh->num_tokens);
 	sh->tokens = NULL;
 
 	if (shell->command != NULL)

@@ -28,23 +28,25 @@ char *conc_fpath(char *filepath, char *path_entry, char *cmd)
 
 char *check_cmd_exist(char *term_cm)
 {
-	/* g_var *sh = shell; */
 	char *copy = NULL, *PATH;
 	int i = 0, tokens = 0, ttl = 0;
 	char *fpath = NULL;
-	char **arr = NULL, *commnd;
+	char **arr = NULL, *commnd, *strd = NULL;
 
 	PATH = getenv("PATH");
 
 	if (NULL == PATH)
-	{
 		return (NULL);
+	if (access(term_cm, X_OK) == 0)
+	{
+		strd = _strdup(term_cm);
+		return (strd);
 	}
-
+	
 	copy = _strdup(PATH);
+	
 	tokens = tokenize(&arr, copy, ":");
 	array_sort(arr, tokens);
-
 	while (arr[i] != NULL)
 	{
 		ttl = _strlen(term_cm) + _strlen(arr[i]);
@@ -53,13 +55,6 @@ char *check_cmd_exist(char *term_cm)
 		if (fpath == NULL)
 			return (NULL);
 
-		if (_strcmp(arr[i], term_cm) == 0)
-		{
-			free_arr(&arr, tokens);
-			free(fpath);
-			free(copy);
-			return (term_cm);
-		}
 
 		fpath = conc_fpath(fpath, arr[i], term_cm);
 
