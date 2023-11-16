@@ -42,9 +42,8 @@ char *check_cmd_exist(char *term_cm)
 		strd = _strdup(term_cm);
 		return (strd);
 	}
-	
+
 	copy = _strdup(PATH);
-	
 	tokens = tokenize(&arr, copy, ":");
 	array_sort(arr, tokens);
 	while (arr[i] != NULL)
