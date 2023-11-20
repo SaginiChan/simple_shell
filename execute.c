@@ -114,9 +114,12 @@ int execute(g_var *shell, char **fin, char **envp)
 	{
 		wait(&status);
 		handle_exit_status(sh, status);
-		free(sh->command);
-		sh->command = NULL;
-		refresh(sh);
+		if (sh->buf_pi == NULL)
+		{
+			free(sh->command);
+			sh->command = NULL;
+			refresh(sh);
+		}
 		(sh->process_id)++;
 		return (sh->status_code);
 	}

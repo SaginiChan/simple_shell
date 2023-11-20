@@ -8,7 +8,7 @@
 void remove_spaces(char *string)
 {
 
-	int length = strlen(string);
+	int length = _strlen(string);
 	int j = 0, i = 0;
 
 	for (; i < length; i++)
@@ -30,12 +30,13 @@ void remove_spaces(char *string)
 */
 void remove_extra_spaces(char **str)
 {
-	int length = strlen(*str), i = 0, j = 0;
+	int length = _strlen(*str), i = 0, j = 0;
 	bool last_char_not_space = true;
 
 	for (i = 0; i < length; i++)
 	{
-		if ((*str)[i] != ' ' || last_char_not_space)
+		if ((*str)[i] != ' ' || (*str)[i] != '\n' || (*str)[i] != '\t' ||
+last_char_not_space)
 		{
 			(*str)[j] = (*str)[i];
 			j++;
@@ -60,10 +61,8 @@ int _isprint(g_var **sh, char *c)
 {
 	int count = 0;
 
-	remove_extra_spaces(&c);
 
-	while (c[count] == ' ' ||
-			c[count] == '\t')
+	while (c[count] == ' ' || c[count] == '\t')
 		count++;
 
 	if (count > 0)
@@ -71,6 +70,7 @@ int _isprint(g_var **sh, char *c)
 		remove_spaces(c);
 	}
 
+	/* remove_extra_spaces(&c); */
 
 	if (_strlen(c) <= 1)
 	{
@@ -106,7 +106,7 @@ void remove_emptyspaces(char **str)
 	while (i >= 0)
 	{
 		if ((*str)[i] == ' ' || (*str)[i] == '\n' ||
-				(*str)[i] == '\t')
+(*str)[i] == '\t')
 			i--;
 		else
 			break;
@@ -115,8 +115,8 @@ void remove_emptyspaces(char **str)
 	(*str)[i + 1] = '\0';
 
 	while ((*str)[count] == ' ' ||
-			(*str)[count] == '\n' ||
-			(*str)[count] == '\t')
+(*str)[count] == '\n' ||
+(*str)[count] == '\t')
 		count++;
 
 	if (count != 0)

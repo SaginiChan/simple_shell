@@ -65,3 +65,29 @@ void free_env(g_var *sh)
 		sh->added_envs--;
 	}
 }
+/**
+ * addAtBeg - adds string at the begining of the array.
+ * @array: Pointer to the array to be manipulated.
+ * @size: size of the array
+ * @element: string to be added
+ */
+void addAtBeg(char *array[], int size, const char *element)
+{
+	int i = 0;
+
+	for (i = size - 1; i > 0; i--)
+	{
+		array[i] = array[i - 1];
+	}
+
+	array[0] = _strdup((char *)element);
+
+	if (array[0] == NULL)
+	{
+		errno = ENOMEM;
+		perror("Memory allocation failed.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/*  (*size)++; */
+}

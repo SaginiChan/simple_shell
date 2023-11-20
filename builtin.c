@@ -51,15 +51,6 @@ int _set(g_var **sh, char *var, char *val)
 	return (1);
 }
 /**
- * handle_error - Print an error message and exit.
- * @message: The error message to print.
- */
-void handle_error(const char *message)
-{
-	perror(message);
-	exit(EXIT_FAILURE);
-}
-/**
  * check_sm - Print an error message and exit.
  * @sh: set of global variables
  * @status: status char to be saved
@@ -131,10 +122,7 @@ int _echo(g_var **sh)
 		free(status);
 		status = NULL;
 	}
-
-	if (write(1, buf, _strlen(buf)) == -1)
-		handle_error("Error writing to stdout");
-
+	proces_buf(sh, buf);
 	_puts("\n");
 	free(buf);
 	free(str);
@@ -186,7 +174,7 @@ int _cd(g_var **sh)
 	{
 		_set(sh, "OLDPLW", cwd);
 		_set(sh, "PWD", arg);
-		free(arg);
+		/* free(arg); */
 	}
 	closedir(dir);
 	return (0);

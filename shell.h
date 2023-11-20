@@ -11,16 +11,18 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 
+#define MAX_INPUT_SIZE 1024
 #define MAX_ENVS 100
 #define MAXSIZE 1024
-#define BUFFERSIZE 120
+#define BUFFERSIZE 1024
 #define FLAG 0
-#define PROMPT 1
 extern int flag;
 extern char **environ;
 /**
  * struct g_var - Shell variables struct
+ * @PROMPT: prompt status
  * @status_code: Prompt flag(true or false)
  * @size: Buffer pointer
  * @command: Command pointer
@@ -38,11 +40,18 @@ extern char **environ;
  * @alias: number of characters read
  * @alias_size: array of environment variables
  * @flag: flag used to show signal statur
+ * @pip_num: number of pips
+ * @mode: mode of the pipe
+ * @buf_pi: buffer to save pips
+ * @fl_pip: flag to track pipe cmds
+ * @pip_cmds: commands to  be put in a list
  * @exit_status: number of characters read
  */
 typedef struct g_var
 {
+	bool PROMPT;
 	char *buffer;
+	int mode;
 	char *command;
 	char *PATH;
 	char *prog_name;
@@ -55,6 +64,10 @@ typedef struct g_var
 	char **alias;
 	int alias_size;
 	int flag;
+	char **pip_cmds;
+	int pip_num;
+	char *buf_pi;
+	int fl_pip;
 	int exit_status;
 	int status_code;
 	size_t size;
@@ -102,6 +115,19 @@ typedef struct cmd_n_list
 	unsigned int len;
 	struct cmd_n_list *next;
 } cmd_n_list;
+/**
+ * struct ppl - Struct
+ *
+ * @str: The string
+ * @symbol: symbol to keep track
+ * @next: next struct
+ */
+typedef struct ppl
+{
+	char *str;
+	char *symbol;
+	struct ppl *next;
+} ppl;
 /**
  * _isprint - checks for non printable characters
  * @c: character to be checked
@@ -155,6 +181,18 @@ void remove_extra_spaces(char **str);
  *
 */
 void remove_emptyspaces(char **str);
+/**
+ * remove_quites - remove all white spaces
+ * @string: string to remove white spaces
+ *
+*/
+void remove_qutes(char **string);
+/**
+ * remove_nl - remove new line at the end
+ * @str: string to remove white spaces
+ *
+*/
+void remove_nl(char **str);
 /**
  * _strncat - conctaenates a string to n characters
  * @dest: the destination of copiied characters
@@ -484,6 +522,13 @@ void array_sort(char *arr[], int size);
 */
 void free_arr(char ***arr, int tokens);
 /**
+ * addAtBeg - adds string at the begining of the array.
+ * @array: Pointer to the array to be manipulated.
+ * @size: size of the array
+ * @element: string to be added
+ */
+void addAtBeg(char *array[], int size, const char *element);
+/**
  * free_alias - frees an array for alias
  * @arr: array to be freed
  * @tokens: number of tokens to be freed
@@ -589,4 +634,55 @@ char *int_str(char *buf, int n, int len);
 */
 int int_len(int n);
 /* END EXTRA STRINGS */
+/* PIPES COMMANDS START */
+/**
+ * ex_pipes - Execute commands with pipes recursively.
+ * @sh: Pointer to global variable structure.
+ * @pipe: pointer to cmd of pipe list
+ */
+void ex_pipes(g_var **sh, ppl **pipe);
+/**
+ * process_pipes - Process commands from the command list.
+ * @h: Pointer to the command list.
+ * @sh: Pointer to the shell structure.
+ * @head: Pointer to the command node list.
+ * Return: Number of nodes processed.
+ */
+size_t process_pipes(const cmd_list *h, g_var *sh, cmd_n_list **head);
+/**
+ * proc_pip - Process commands from the command list.
+ * @pip: Pointer to the command list.
+ * @sh: Pointer to the shell structure.
+ * @head: Pointer to the command node list.
+ * Return: Number of nodes processed.
+ */
+size_t proc_pip(g_var *sh, cmd_n_list **head, ppl **pip);
+/**
+ * free_list - frees all the node in a list and reset the head to NULL.
+ * @h: pointer of pointer to a list.
+ */
+void free_list(ppl **h);
+/**
+ * proces_buf - process buffer
+ * @sh: global variables
+ * @buf: buffer to be processed
+*/
+void proces_buf(g_var **sh, char *buf);
+/**
+ * proces_buf - process buffer
+ * @sh: global variables
+ * @buf: buffer to be processed
+*/
+void proces_buf(g_var **sh, char *buf);
+/**
+ * handle_error - Print an error message and exit.
+ * @message: The error message to print.
+ */
+void handle_error(const char *message);
+/**
+ * free_pip - frees all the node in a list and reset the head to NULL.
+ * @h: pointer of pointer to a list.
+ */
+void free_pip(ppl **h);
+/* PIPES COMMANDS END */
 #endif /*SHELL_H*/

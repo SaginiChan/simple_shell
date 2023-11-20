@@ -28,8 +28,12 @@ void initialize_shell(g_var **sh, char **envp)
 	(*sh)->exit_status = 0;
 	(*sh)->status_code = 0;
 	(*sh)->flag = 0;
+	(*sh)->fl_pip = 0;
+	(*sh)->buf_pi = NULL;
+	(*sh)->PROMPT = true;
 	(*sh)->environs = envp;
 	(*sh)->size = 0;
+	(*sh)->mode = 0;
 	(*sh)->nread = 0;
 
 }

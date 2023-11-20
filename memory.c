@@ -1,3 +1,4 @@
+#include "shell.h"
 /**
  * _memcpy - copies n bytes from memory area src to memory
  *           area dest
@@ -38,4 +39,23 @@ char *_memset(char *s, char b, unsigned int n)
 	}
 
 	return (s);
+}
+/**
+ * proces_buf - process buffer
+ * @sh: global variables
+ * @buf: buffer to be processed
+*/
+void proces_buf(g_var **sh, char *buf)
+{
+	if ((*sh)->fl_pip == 1)
+	{
+		(*sh)->buf_pi = _calloc(_strlen(buf) + 120, sizeof(char));
+		_strcat((*sh)->buf_pi, buf);
+	}
+	else
+	{
+		if (write(1, buf, _strlen(buf)) == -1)
+			handle_error("Error writing to stdout");
+		fflush(stdout);
+	}
 }

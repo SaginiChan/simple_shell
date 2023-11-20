@@ -3,10 +3,11 @@
  * process_special_cases - Process special cases in user input.
  * @sh: Pointer to the shell structure.
  * @h: pointer to list of commands with symbols
+ * @p: list of pipe cmds
  * @head: Pointer to the command list head.
  * Return: returns 1 if one of the proces is passed 0 if not;
  */
-int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h)
+int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h, ppl *p)
 {
 
 	if (check_semicolon(sh, head))
@@ -30,7 +31,16 @@ int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h)
 		cleanup(*sh);
 		return (1);
 	}
-
+	if (_strchr((*sh)->buffer, '|'))
+	{
+		(*sh)->pip_num = tokenize(&((*sh)->pip_cmds), (*sh)->buffer, "|");
+		cleanup_and_free_tokens(*sh);
+		ex_pipes(sh, &p);
+		proc_pip(*sh, h, &p);
+		free_arr(&((*sh)->pip_cmds), (*sh)->pip_num);
+		free_pip(&p);
+		return (1);
+	}
 	if (get_built_in(*sh, ((*sh)->tokens)[0]))
 	{
 		(*sh)->command = _strdup((*sh)->buffer);
@@ -40,7 +50,20 @@ int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h)
 	}
 	return (0);
 }
-
+/**
+ * checks_ser - conducts series of checks.
+ * @sh: Pointer to the shell structure.
+ */
+void checks_ser(g_var **sh)
+{
+	input_check(*sh);
+	free_arr(&(*sh)->tokens, (*sh)->num_tokens);
+	remove_qutes(&((*sh)->buffer));
+	remove_nl(&((*sh)->buffer));
+	(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buffer, " ");
+	remove_extra_spaces(&((*sh)->buffer));
+	process_hsh_sym(sh);
+}
 /**
  * shell_prompt - is a prompt that keeps asking for user input
  * @sh: struct for global variables
@@ -49,32 +72,30 @@ void shell_prompt(g_var **sh)
 {
 	cmd_list *head = NULL;
 	cmd_n_list *h = NULL;
+	ppl *pipes = NULL;
 	char cwd[120] = {0}, *p_nm = (*sh)->prog_name, *msg = "not found";
 
 	signal(SIGINT, sigint_handler);
-
-	while (PROMPT)
+	while ((*sh)->PROMPT)
 	{
-		if (isatty(STDIN_FILENO))
+		if ((*sh)->mode == 0)
 		{
 			_memset(cwd, 0, sizeof(cwd));
 			_puts(getcwd(cwd, 120));
 			_puts("$ ");
+			(*sh)->nread = _getline(&((*sh)->buffer), &((*sh)->size), stdin);
 		}
-
-		(*sh)->nread = _getline(&((*sh)->buffer), &((*sh)->size), stdin);
-
+		else
+		{
+			(*sh)->PROMPT = false;
+		}
 		if (_isprint(sh, (*sh)->buffer) == 1)
 			continue;
-
-		remove_emptyspaces(&((*sh)->buffer));
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buffer, " ");
-		input_check(*sh);
-		process_hsh_sym(sh);
-		if (process_special_cases(sh, &head, &h) == 1)
+		checks_ser(sh);
+		if (process_special_cases(sh, &head, &h, pipes) == 1)
 			continue;
 		(*sh)->command = check_cmd_exist((*sh)->tokens[0]);
-
 		if ((*sh)->command)
 		{
 			execute(*sh, (*sh)->tokens, (*sh)->environs);
@@ -82,7 +103,6 @@ void shell_prompt(g_var **sh)
 		}
 		else
 			not_found(p_nm, ((*sh)->tokens)[0], (*sh)->process_id, msg);
-
 		cleanup_and_free_tokens(*sh);
 	}
 }
