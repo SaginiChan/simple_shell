@@ -73,16 +73,13 @@ void shell_prompt(g_var **sh)
 	cmd_list *head = NULL;
 	cmd_n_list *h = NULL;
 	ppl *pipes = NULL;
-	char cwd[120] = {0}, *p_nm = (*sh)->prog_name, *msg = "not found";
+	char *p_nm = (*sh)->prog_name, *msg = "not found";
 
 	signal(SIGINT, sigint_handler);
 	while ((*sh)->PROMPT)
 	{
 		if ((*sh)->mode == 0)
 		{
-			_memset(cwd, 0, sizeof(cwd));
-			_puts(getcwd(cwd, 120));
-			_puts("$ ");
 			(*sh)->nread = _getline(&((*sh)->buffer), &((*sh)->size), stdin);
 		}
 		else
