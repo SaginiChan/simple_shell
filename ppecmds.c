@@ -63,6 +63,7 @@ void processCommand(g_var **sh, char *tmp)
 		for (i = 0; i < (*sh)->num_tokens - 1; ++i)
 		{
 			tm = NULL;
+			remove_emptyspaces(&(*sh)->tokens[i]);
 			size_a = tokenize(&tm, (*sh)->tokens[i], " ");
 			(*sh)->command = _strdup(tm[0]);
 			execute(*sh, tm, (*sh)->environs);
