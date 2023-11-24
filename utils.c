@@ -1,5 +1,17 @@
 #include "shell.h"
 #include <stdbool.h>
+#include <ctype.h>
+
+/**
+ * _isspace - Custom implementation of isspace function
+ * @c: The character to check for white-space
+ *
+ * Return: true if the character is white-space, false otherwise.
+ */
+bool _isspace(char c)
+{
+	return (c == ' ');
+}
 /**
  * remove_spaces - remove all white spaces
  * @string: string to remove white spaces
@@ -25,30 +37,38 @@ void remove_spaces(char *string)
 
 /**
  * remove_extra_spaces - remove extra white spaces
- * @str: string to remove white spaces
+ * @input: string to remove white spaces
  *
 */
-void remove_extra_spaces(char **str)
+void remove_extra_spaces(char *input)
 {
-	int length = _strlen(*str), i = 0, j = 0;
-	bool last_char_not_space = true;
+	char *output = input;
+	int isSpace = 0;
 
-	for (i = 0; i < length; i++)
+	while (input && *input)
 	{
-		if ((*str)[i] != ' ' || (*str)[i] != '\n' || (*str)[i] != '\t' ||
-last_char_not_space)
+		if (_isspace(*input))
 		{
-			(*str)[j] = (*str)[i];
-			j++;
+			if (!isSpace)
+			{
+				*output++ = ' ';
+				isSpace = 1;
+			}
+		}
+		else
+		{
+			*output++ = *input;
+			isSpace = 0;
 		}
 
-		if ((*str)[i] == ' ')
-			last_char_not_space = false;
-		else
-			last_char_not_space = true;
+		input++;
 	}
 
-	(*str)[j] = '\0';
+	if (output)
+	{
+		*output = '\0';
+	}
+
 }
 
 /**
@@ -63,18 +83,21 @@ int _isprint(g_var **sh, char *c)
 
 
 	while (c[count] == ' ' || c[count] == '\t')
-		count++;
-
-	if (count > 0)
+	{
+		if (c[count] == ' ' ||
+				c[count] == '\t')
+			count++;
+		else
+			break;
+	}
+	if (count > 0 && (*sh)->mode == 1)
 	{
 		remove_spaces(c);
 	}
-
-	/* remove_extra_spaces(&c); */
-
 	if (_strlen(c) <= 1)
 	{
-		if ((*sh)->nread == 0 && _strcmp(((*sh)->buffer), "") == 0)
+		if (((*sh)->nread == -1 || (*sh)->nread == 0) &&
+				_strcmp(((*sh)->buffer), "") == 0)
 			control_d(*sh);
 
 		if (_strcmp(((*sh)->buffer), "\n") == 0)
@@ -83,14 +106,11 @@ int _isprint(g_var **sh, char *c)
 			((*sh)->buffer) = NULL;
 			return (1);
 		}
-
-
 	}
 	else
 	{
 		return (0);
 	}
-
 	return (*c >= 0x20 && *c <= 0x7E);
 }
 
@@ -101,22 +121,31 @@ int _isprint(g_var **sh, char *c)
 */
 void remove_emptyspaces(char **str)
 {
-	int i = strlen(*str) - 1, count = 0;
+	int i = 0, count = 0;
+
+	if (*str)
+	{
+		i = _strlen(*str) - 1;
+	}
+
 
 	while (i >= 0)
 	{
-		if ((*str)[i] == ' ' || (*str)[i] == '\n' ||
-(*str)[i] == '\t')
+		if ((*str) && ((*str)[i] == ' ' ||
+					(*str)[i] == '\t'))
 			i--;
 		else
 			break;
 	}
 
-	(*str)[i + 1] = '\0';
+	if ((*str))
+	{
+		(*str)[i + 1] = '\0';
+	}
 
-	while ((*str)[count] == ' ' ||
-(*str)[count] == '\n' ||
-(*str)[count] == '\t')
+
+	while ((*str) && ((*str)[count] == ' ' ||
+				(*str)[count] == '\t'))
 		count++;
 
 	if (count != 0)
@@ -128,48 +157,7 @@ void remove_emptyspaces(char **str)
 			(*str)[i] = (*str)[i + count];
 			i++;
 		}
-
 		(*str)[i] = '\0';
 	}
-
-	remove_extra_spaces(str);
-}
-/**
- * check_single_quote - Add single quotes to a string if not present.
- * @str: Pointer to the string to check.
- * Return: 1 if modified, 0 if not.
- */
-int check_single_quote(char **str)
-{
-	char *dup = NULL;
-	int i = 0, j = 0;
-
-	if (_strchr(*str, '\'') == NULL)
-	{
-		dup = _calloc(_strlen(*str) + 3, sizeof(char));
-
-		if (dup == NULL)
-		{
-			perror("Memory allocation failed");
-			exit(EXIT_FAILURE);
-		}
-
-		dup[j] = '\'';
-		j++;
-
-		while ((*str)[i] != '\0')
-		{
-			dup[j] = (*str)[i];
-			j++;
-			i++;
-		}
-
-		dup[j] = '\'';
-		dup[j + 1] = '\0';
-
-		*str = dup;
-		return (1);
-	}
-
-	return (0);
+	remove_extra_spaces(*str);
 }

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <fcntl.h>
 
 #define MAX_INPUT_SIZE 1024
 #define MAX_ENVS 100
@@ -171,10 +172,10 @@ int _strcmp(char *s1, char *s2);
 char *_strncpy(char *dest, char *src, int n);
 /**
  * remove_extra_spaces - remove extra white spaces
- * @str: string to remove white spaces
+ * @input: string to remove white spaces
  *
 */
-void remove_extra_spaces(char **str);
+void remove_extra_spaces(char *input);
 /**
  * remove_emptyspaces - remove white spaces
  * @str: string to remove white spaces
@@ -193,6 +194,12 @@ void remove_qutes(char **string);
  *
 */
 void remove_nl(char **str);
+
+/**
+ * rmTb - removes tabs from strings
+ * @str: string to be manipulated
+*/
+void rmTb(char *str);
 /**
  * _strncat - conctaenates a string to n characters
  * @dest: the destination of copiied characters
@@ -415,6 +422,11 @@ void free_listint_safe(cmd_n_list **h);
  * @h: pointer of pointer to a list.
  */
 void free_list_cmd(cmd_list **h);
+/**
+ * free_list_pipe - frees all the node in a list and reset the head to NULL.
+ * @h: pointer of pointer to a list.
+ */
+void free_list_pipe(ppl **h);
 /**
  * refresh - clean up the varable used before next iteration.
  * @shell: Pointer to the shell structure to be cleaned.
@@ -668,6 +680,13 @@ void free_list(ppl **h);
  * @buf: buffer to be processed
 */
 void proces_buf(g_var **sh, char *buf);
+void rplaceSp(char *str);
+/**
+ * remove_spaces - remove all white spaces
+ * @string: string to remove white spaces
+ *
+*/
+void remove_spaces(char *string);
 /**
  * proces_buf - process buffer
  * @sh: global variables

@@ -102,8 +102,6 @@ int _echo(g_var **sh)
 	if (!(*sh)->command)
 		return (1);
 
-	remove_emptyspaces(&((*sh)->command));
-
 	while ((*sh)->command[len2 + count])
 		count++;
 

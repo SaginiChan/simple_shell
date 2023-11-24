@@ -31,7 +31,7 @@ int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h, ppl *p)
 		cleanup(*sh);
 		return (1);
 	}
-	if (_strchr((*sh)->buffer, '|'))
+	if (_strchr((*sh)->buffer, '|') || !isatty(STDIN_FILENO))
 	{
 		(*sh)->pip_num = tokenize(&((*sh)->pip_cmds), (*sh)->buffer, "|");
 		cleanup_and_free_tokens(*sh);
@@ -61,7 +61,8 @@ void checks_ser(g_var **sh)
 	remove_qutes(&((*sh)->buffer));
 	remove_nl(&((*sh)->buffer));
 	(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buffer, " ");
-	remove_extra_spaces(&((*sh)->buffer));
+	/* remove_extra_spaces(&((*sh)->buffer)); */
+	/* remove_emptyspaces(&((*sh)->buffer)); */
 	process_hsh_sym(sh);
 }
 /**
@@ -78,28 +79,32 @@ void shell_prompt(g_var **sh)
 	signal(SIGINT, sigint_handler);
 	while ((*sh)->PROMPT)
 	{
-		if ((*sh)->mode == 0)
-		{
-			(*sh)->nread = _getline(&((*sh)->buffer), &((*sh)->size), stdin);
-		}
-		else
-		{
+		if (!isatty(STDIN_FILENO))
 			(*sh)->PROMPT = false;
-		}
+
+		(*sh)->nread = _getline(&((*sh)->buffer), &((*sh)->size), stdin);
+
 		if (_isprint(sh, (*sh)->buffer) == 1)
 			continue;
+
+		rmTb((*sh)->buffer);
+		remove_emptyspaces(&((*sh)->buffer));
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buffer, " ");
 		checks_ser(sh);
 		if (process_special_cases(sh, &head, &h, pipes) == 1)
 			continue;
+
 		(*sh)->command = check_cmd_exist((*sh)->tokens[0]);
+
 		if ((*sh)->command)
 		{
+
 			execute(*sh, (*sh)->tokens, (*sh)->environs);
 			continue;
 		}
 		else
 			not_found(p_nm, ((*sh)->tokens)[0], (*sh)->process_id, msg);
+
 		cleanup_and_free_tokens(*sh);
 	}
 }

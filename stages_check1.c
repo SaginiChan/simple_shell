@@ -145,3 +145,42 @@ void input_check(g_var *sh)
 		}
 	input_check(sh);
 }
+/**
+ * check_single_quote - Add single quotes to a string if not present.
+ * @str: Pointer to the string to check.
+ * Return: 1 if modified, 0 if not.
+ */
+int check_single_quote(char **str)
+{
+	char *dup = NULL;
+	int i = 0, j = 0;
+
+	if (_strchr(*str, '\'') == NULL)
+	{
+		dup = _calloc(_strlen(*str) + 3, sizeof(char));
+
+		if (dup == NULL)
+		{
+			perror("Memory allocation failed");
+			exit(EXIT_FAILURE);
+		}
+
+		dup[j] = '\'';
+		j++;
+
+		while ((*str)[i] != '\0')
+		{
+			dup[j] = (*str)[i];
+			j++;
+			i++;
+		}
+
+		dup[j] = '\'';
+		dup[j + 1] = '\0';
+
+		*str = dup;
+		return (1);
+	}
+
+	return (0);
+}

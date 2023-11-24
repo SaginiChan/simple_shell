@@ -1,4 +1,5 @@
 #include "shell.h"
+
 /**
  * process_special_cases1 - Process special cases in user input.
  * @sh: Pointer to the shell structure.
@@ -42,40 +43,52 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
 	exit(0);
 }
 /**
- * execute_command - Execute a command.
- * @cmd: Command string.
- * @shell: Pointer to the global variable structure.
- * @head: Pointer to the command list structure.
- * @h: Pointer to the command node structure.
- *
- * Return: 0 on success, -1 on failure.
+ * processCommand - Process the command by tokenizing and executing it.
+ * @sh: Pointer to the Shell structure.
+ * @tmp: Temporary string for non-interactive processing.
+ * @size_a: Size of the array to be allocated for tokens.
  */
-int execute_command(char *cmd, g_var **shell, cmd_list *head, cmd_n_list *h)
+void processCommand(g_var **sh, char *tmp, size_t size_a)
 {
-	char  *p_nm = (*shell)->prog_name, *msg = "not found";
-	g_var **sh = shell;
+	char **tm;
+	int i = 0;
 
-
-	(*sh)->num_tokens = tokenize(&((*sh)->tokens), cmd, " ");
-	process_special_cases1(sh, &head, &h);
-	cmd = check_cmd_exist((*sh)->tokens[0]);
-	(*sh)->command = cmd;
-
-	if (cmd)
+	if (((*sh)->command || !isatty(STDIN_FILENO)))
 	{
-		if (execve(cmd, (*sh)->tokens, (*sh)->environs) == -1)
-		{
-			perror("PIPE");
-			exit(errno);
-		}
+		free((*sh)->command);
+		(*sh)->command = NULL;
+		rplaceSp((*sh)->buf_pi);
+		remove_extra_spaces((*sh)->buf_pi);
+		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, " ");
 
-		return (0);
+		for (i = 0; i < (*sh)->num_tokens - 1; ++i)
+		{
+			rmTb((*sh)->tokens[i]);
+			remove_spaces((*sh)->tokens[i]);
+			remove_nl(&((*sh)->tokens[i]));
+			tm = _calloc((size_a), sizeof(char *));
+			addAtBeg(tm, size_a, (*sh)->tokens[i]);
+			if (isatty(STDIN_FILENO))
+			{
+				addAtBeg(tm, size_a, tmp);
+				tm[size_a - 1] = NULL;
+			}
+			else
+				tm[size_a - 2] = NULL;
+			(*sh)->command = _strdup((*sh)->tokens[i]);
+			execute(*sh, tm, (*sh)->environs);
+			free_arr(&tm, size_a - 1);
+			free(tm);
+			tm = NULL;
+			free((*sh)->command);
+			(*sh)->command = NULL;
+		}
 	}
 	else
-		not_found(p_nm, ((*sh)->tokens)[0], (*sh)->process_id, msg);
-
-	cleanup_and_free_tokens(*sh);
-	return (0);
+	{
+		not_found((*sh)->prog_name, tmp, (*sh)->process_id, "not found");
+		free(tmp);
+	}
 }
 
 /**
@@ -85,46 +98,32 @@ int execute_command(char *cmd, g_var **shell, cmd_list *head, cmd_n_list *h)
  */
 int chk_cmd(g_var **sh)
 {
-	int i = 0, size_a = 3/* , size_b = 0 */;
-	char *tmp = NULL, **tm = NULL;
-	/* pid_t childPid; */
+	int size_a = 3;
+	char *tmp = NULL;
+
+	remove_emptyspaces(&(*sh)->command);
 	tmp = _strdup((*sh)->command);
 	free((*sh)->command);
 	(*sh)->command = NULL;
 
-
 	(*sh)->command = check_cmd_exist(tmp);
 
+	rmTb((*sh)->buf_pi);
+	remove_emptyspaces(&(*sh)->buf_pi);
 	free_arr(&((*sh)->tokens), (*sh)->num_tokens);
 
-	if ((*sh)->command)
+	if (_strcmp((*sh)->buf_pi, "") == 0)
 	{
-		(*sh)->num_tokens  = tokenize(&((*sh)->tokens), (*sh)->buf_pi, "\n");
-
-		for (i = 0; i < (*sh)->num_tokens - 1; ++i)
-		{
-			remove_emptyspaces(&((*sh)->tokens[i]));
-			remove_nl(&((*sh)->tokens[i]));
-			tm = _calloc((size_a), sizeof(char *));
-			addAtBeg(tm, size_a, (*sh)->tokens[i]);
-			addAtBeg(tm, size_a, (*sh)->command);
-			tm[size_a - 1] = NULL;
-			execute(*sh, tm, (*sh)->environs);
-			free_arr(&(tm), size_a);
-		}
-
-		free((*sh)->buf_pi);
-		(*sh)->buf_pi = NULL;
-		cleanup_and_free_tokens(*sh);
 		free(tmp);
-		return (1);
+		return (0);
 	}
-	else
-	{
-		not_found((*sh)->prog_name, tmp, (*sh)->process_id, "not found");
-		free(tmp);
-	}
-	return (0);
+
+	processCommand(sh, tmp, size_a);
+	free((*sh)->buf_pi);
+	(*sh)->buf_pi = NULL;
+	cleanup_and_free_tokens(*sh);
+	free(tmp);
+	return (1);
 }
 /**
  * process_sle - Process a single command from the command list.
@@ -143,15 +142,11 @@ static int process_sle(g_var *sh, cmd_n_list **head, ppl *p)
 	{
 		sh->fl_pip = 0;
 	}
-
 	if (p != NULL)
 	{
 		free_arr(&(sh->tokens), sh->num_tokens);
 		sh->command  = _strdup(p->str);
-
-		remove_emptyspaces(&(sh->command));
 		sh->num_tokens = tokenize(&(sh->tokens), sh->command, " ");
-
 		if (hasSymbols(&sh))
 		{
 			check_symbols(&sh, head);
@@ -160,18 +155,20 @@ static int process_sle(g_var *sh, cmd_n_list **head, ppl *p)
 			cleanup_and_free_tokens(sh);
 			return (1);
 		}
-
 		if (get_built_in(sh, (sh->tokens)[0]))
 		{
 			get_built_in(sh, (sh->tokens)[0])(&sh);
 			cleanup_and_free_tokens(sh);
 			return (1);
 		}
-
+		if (sh->buf_pi == NULL)
+		{
+			sh->fl_pip = 1;
+			proces_buf(&sh, sh->command);
+		}
 		chk_cmd(&sh);
 		cleanup_and_free_tokens(sh);
 	}
-
 	return (0);
 }
 

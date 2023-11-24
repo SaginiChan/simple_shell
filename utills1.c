@@ -44,3 +44,39 @@ void remove_nl(char **str)
 	}
 
 }
+/**
+ * rplaceSp - replaces tbas newlines  with single space
+ * @str: string to be converted
+*/
+void rplaceSp(char *str)
+{
+	size_t length = _strlen(str);
+	size_t i = 0;
+
+	for (; i < length; i++)
+	{
+		if (str[i] == '\t' || str[i] == '\n' || str[i] == '\r')
+		{
+			str[i] = ' ';
+		}
+	}
+}
+/**
+ * rmTb - removes tabs from strings
+ * @str: string to be manipulated
+*/
+void rmTb(char *str)
+{
+	int i, j;
+
+	for (i = 0, j = 0; str && str[i] != '\0'; i++)
+	{
+		if (str[i] != '\t')
+		{
+			str[j++] = str[i];
+		}
+	}
+
+	if (str)
+		str[j] = '\0';
+}

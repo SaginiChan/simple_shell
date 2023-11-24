@@ -26,11 +26,12 @@ int _fileno(FILE *stream)
 	return (stream->_fileno);
 }
 /**
- * validate - validates buffer
- * @len: stream to find fd for
- * @tm_n: previuose size of buffer
- * @man_buf: pointer to buffer
- * @n: size of buffer
+ * validate - Validates the length and reallocates memory if necessary.
+ *
+ * @len: Length of the buffer.
+ * @tm_n: Original size of the buffer before reallocation.
+ * @man_buf: Pointer to the buffer to be validated and reallocated.
+ * @n: Pointer to the size of the buffer.
  */
 void validate(size_t len, int tm_n, char **man_buf, size_t *n)
 {
@@ -69,9 +70,9 @@ size_t read_buffer(int fd, char **man_buf, size_t *n)
 	size_t len = _strlen(*man_buf), totalCharsRead = 0;
 	ssize_t charsRead = 0;
 	char buffer[BUFFERSIZE];
-	int i = 0, tm_n = *n;
+	int i = 0, tm_n = *n, isTerminal = isatty(STDIN_FILENO);
 
-	validate(len, tm_n, man_buf, n);
+	validate(len, tm_n, man_buf, *n);
 
 	while ((charsRead = read(fd, buffer, sizeof(buffer))) > 0)
 	{
@@ -92,18 +93,18 @@ size_t read_buffer(int fd, char **man_buf, size_t *n)
 
 		for (i = 0; i < charsRead; i++)
 		{
-			if (buffer[i] == '\n')
-			{
-				(*man_buf)[len] = '\n';
-				(*man_buf)[len + 1] = '\0';
-				return (len);
-			}
-
 			(*man_buf)[len] = buffer[i];
 			len++;
+
+			if (isTerminal == 0 && i >= charsRead)
+				goto end_of_loop;
+
+			if (isTerminal && buffer[i] == '\n')
+				goto end_of_loop;
 		}
 	}
 
+end_of_loop:
 	check_chars(charsRead, man_buf);
 	return (totalCharsRead);
 }

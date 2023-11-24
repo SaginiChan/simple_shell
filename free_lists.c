@@ -15,6 +15,7 @@ void __free(cmd_n_list *head)
 	{
 		free(head->str);
 	}
+
 	head->str = NULL;
 	free(head);
 }
