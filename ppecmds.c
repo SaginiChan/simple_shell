@@ -59,7 +59,7 @@ void processCommand(g_var **sh, char *tmp, size_t size_a)
 		(*sh)->command = NULL;
 		rplaceSp((*sh)->buf_pi);
 		remove_extra_spaces((*sh)->buf_pi);
-		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, " ");
+		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, "\n");
 
 		for (i = 0; i < (*sh)->num_tokens - 1; ++i)
 		{

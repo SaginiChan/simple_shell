@@ -55,7 +55,7 @@ void rplaceSp(char *str)
 
 	for (; i < length; i++)
 	{
-		if (str[i] == '\t' || str[i] == '\n' || str[i] == '\r')
+		if (str[i] == '\t' || str[i] == '\r')
 		{
 			str[i] = ' ';
 		}
