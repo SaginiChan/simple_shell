@@ -46,10 +46,10 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
  * processCommand - Process the command by tokenizing and executing it.
  * @sh: Pointer to the Shell structure.
  * @tmp: Temporary string for non-interactive processing.
- * @size_a: Size of the array to be allocated for tokens.
  */
-void processCommand(g_var **sh, char *tmp, size_t size_a)
+void processCommand(g_var **sh, char *tmp)
 {
+	size_t size_a = 0;
 	char **tm;
 	int i = 0;
 
@@ -58,28 +58,15 @@ void processCommand(g_var **sh, char *tmp, size_t size_a)
 		free((*sh)->command);
 		(*sh)->command = NULL;
 		rplaceSp((*sh)->buf_pi);
-		remove_extra_spaces((*sh)->buf_pi);
+		remove_emptyspaces(&(*sh)->buf_pi);
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, "\n");
-
 		for (i = 0; i < (*sh)->num_tokens - 1; ++i)
 		{
-			rmTb((*sh)->tokens[i]);
-			remove_spaces((*sh)->tokens[i]);
-			remove_nl(&((*sh)->tokens[i]));
-			tm = _calloc((size_a), sizeof(char *));
-			addAtBeg(tm, size_a, (*sh)->tokens[i]);
-			if (isatty(STDIN_FILENO))
-			{
-				addAtBeg(tm, size_a, tmp);
-				tm[size_a - 1] = NULL;
-			}
-			else
-				tm[size_a - 2] = NULL;
-			(*sh)->command = _strdup((*sh)->tokens[i]);
-			execute(*sh, tm, (*sh)->environs);
-			free_arr(&tm, size_a - 1);
-			free(tm);
 			tm = NULL;
+			size_a = tokenize(&tm, (*sh)->tokens[i], " ");
+			(*sh)->command = _strdup(tm[0]);
+			execute(*sh, tm, (*sh)->environs);
+			free_arr(&tm, size_a);
 			free((*sh)->command);
 			(*sh)->command = NULL;
 		}
@@ -98,7 +85,6 @@ void processCommand(g_var **sh, char *tmp, size_t size_a)
  */
 int chk_cmd(g_var **sh)
 {
-	int size_a = 3;
 	char *tmp = NULL;
 
 	remove_emptyspaces(&(*sh)->command);
@@ -118,7 +104,7 @@ int chk_cmd(g_var **sh)
 		return (0);
 	}
 
-	processCommand(sh, tmp, size_a);
+	processCommand(sh, tmp);
 	free((*sh)->buf_pi);
 	(*sh)->buf_pi = NULL;
 	cleanup_and_free_tokens(*sh);
