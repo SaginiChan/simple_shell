@@ -65,7 +65,7 @@ void processCommand(g_var **sh, char *tmp)
 			tm = NULL;
 			remove_emptyspaces(&(*sh)->tokens[i]);
 			size_a = tokenize(&tm, (*sh)->tokens[i], " ");
-			(*sh)->command = _strdup(tm[0]);
+			(*sh)->command = check_cmd_exist(tm[0]);
 			execute(*sh, tm, (*sh)->environs);
 			free_arr(&tm, size_a);
 			free((*sh)->command);
@@ -94,11 +94,11 @@ int chk_cmd(g_var **sh)
 	(*sh)->command = NULL;
 
 	(*sh)->command = check_cmd_exist(tmp);
-
 	rmTb((*sh)->buf_pi);
 	remove_emptyspaces(&(*sh)->buf_pi);
 	free_arr(&((*sh)->tokens), (*sh)->num_tokens);
-
+	free(tmp);
+	tmp = _strdup((*sh)->command);
 	if (_strcmp((*sh)->buf_pi, "") == 0)
 	{
 		free(tmp);
