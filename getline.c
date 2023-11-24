@@ -72,7 +72,7 @@ size_t read_buffer(int fd, char **man_buf, size_t *n)
 	char buffer[BUFFERSIZE];
 	int i = 0, tm_n = *n, isTerminal = isatty(STDIN_FILENO);
 
-	validate(len, tm_n, man_buf, *n);
+	validate(len, tm_n, man_buf, n);
 
 	while ((charsRead = read(fd, buffer, sizeof(buffer))) > 0)
 	{
