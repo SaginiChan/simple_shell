@@ -50,7 +50,20 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
  */
 void processCommand(g_var **sh, char *tmp)
 {
-	if (((*sh)->command || (!isatty(STDIN_FILENO))))
+	char *com = (*sh)->command;
+	int fl = 0;
+
+	if (com)
+	{
+		if (_strcmp(com, tmp) != 0)
+		{
+			fl = 1;
+		}
+
+	}
+
+	if ((com && isatty(STDIN_FILENO)) ||
+			(!isatty(STDIN_FILENO) && fl == 0))
 	{
 		free((*sh)->command);
 		(*sh)->command = NULL;
@@ -61,8 +74,6 @@ void processCommand(g_var **sh, char *tmp)
 	}
 	else
 	{
-		free((*sh)->command);
-		(*sh)->command = NULL;
 		not_found(*sh, (*sh)->prog_name, tmp, (*sh)->process_id, "not found");
 		free(tmp);
 	}
@@ -85,9 +96,6 @@ int chk_cmd(g_var **sh)
 	rmTb((*sh)->buf_pi);
 	remove_emptyspaces(&(*sh)->buf_pi);
 	free_arr(&((*sh)->tokens), (*sh)->num_tokens);
-	free(tmp);
-	tmp = _strdup((*sh)->command);
-
 	if (_strcmp((*sh)->buf_pi, "") == 0)
 	{
 		free(tmp);
