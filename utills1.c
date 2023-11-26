@@ -6,7 +6,7 @@
 void cleanup_and_free_tokens(g_var *sh)
 {
 	free_arr(&(sh->tokens), sh->num_tokens);
-	(sh->process_id)++;
+	/* (sh->process_id)++; */
 	cleanup(sh);
 }
 /**

@@ -34,7 +34,6 @@ int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h, ppl *p)
 	if (_strchr((*sh)->buffer, '|') || !isatty(STDIN_FILENO))
 	{
 		(*sh)->pip_num = tokenize(&((*sh)->pip_cmds), (*sh)->buffer, "|");
-		cleanup_and_free_tokens(*sh);
 		ex_pipes(sh, &p);
 		proc_pip(*sh, h, &p);
 		free_arr(&((*sh)->pip_cmds), (*sh)->pip_num);
@@ -103,7 +102,7 @@ void shell_prompt(g_var **sh)
 			continue;
 		}
 		else
-			not_found(p_nm, ((*sh)->tokens)[0], (*sh)->process_id, msg);
+			not_found(*sh, p_nm, ((*sh)->tokens)[0], (*sh)->process_id, msg);
 
 		cleanup_and_free_tokens(*sh);
 	}

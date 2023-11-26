@@ -41,7 +41,7 @@ int process_command_node(const cmd_n_list **h, g_var *sh, int *nds, int *flag)
 	}
 	else
 	{
-		not_found(sh->prog_name, (sh->tokens)[0], sh->process_id, "not found");
+		not_found(sh, sh->prog_name, (sh->tokens)[0], sh->process_id, "not found");
 	}
 
 	cleanup_and_free_tokens(sh);

@@ -1,5 +1,35 @@
 #include "shell.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
+/**
+ * check_and_get_exec - Check if a file is executable and return its path.
+ * @term_cm: The file path to check.
+ *
+ * Return: A dynamically allocated string containing the executable path,
+ *         or NULL if the file is not executable or an error occurs.
+ */
+char *check_and_get_exec(char *term_cm)
+{
+	char *strd = NULL;
+	struct stat file_stat;
+
+	if (access(term_cm, X_OK | R_OK) == 0)
+	{
+
+		if (stat(term_cm, &file_stat) == 0)
+		{
+			if (S_ISREG(file_stat.st_mode) && (file_stat.st_mode & S_IXUSR))
+			{
+				strd = _strdup(term_cm);
+				return (strd);
+			}
+		}
+	}
+
+	return (NULL);
+}
 int handle_exit_status(g_var *sh, int status);
 /**
  * conc_fpath - Concatenates the file path.
@@ -44,6 +74,7 @@ char *build_path(char *path_segments[], int num_segments)
 				ns = sizeof(char) * (_strlen(PATH) + _strlen(path_segments[j]) + 2);
 				old = _strlen(PATH);
 				PATH = _realloc(PATH, old, ns);
+
 				if (PATH != NULL)
 				{
 					_strcat(PATH, ":");
@@ -76,9 +107,9 @@ char *build_path(char *path_segments[], int num_segments)
 char *check_cmd_exist(char *term_cm)
 {
 	char *copy = NULL, *PATH;
-	int i = 0, tokens = 0, ttl = 0, fl = 0;
+	int i = 0, tokens = 0, ttl = 0;
 	char *fpath = NULL;
-	char **arr = NULL, *commnd, *strd = NULL;
+	char **arr = NULL, *commnd/* , *strd = NULL */;
 	char *path_seg[] = {
 		"/usr/local/sbin",
 		"/usr/local/bin",
@@ -96,16 +127,13 @@ char *check_cmd_exist(char *term_cm)
 	if (PATH == NULL)
 	{
 		PATH = build_path(path_seg, ele);
-		fl = 1;
 	}
-
-	if (access(term_cm, X_OK) == 0)
+	commnd = check_and_get_exec(term_cm);
+	if (commnd)
 	{
-		strd = _strdup(term_cm);
 		free(PATH);
-		return (strd);
+		return (commnd);
 	}
-
 	copy = _strdup(PATH);
 	tokens = tokenize(&arr, copy, ":");
 	array_sort(arr, tokens);
@@ -120,26 +148,25 @@ char *check_cmd_exist(char *term_cm)
 
 		fpath = conc_fpath(fpath, arr[i], term_cm);
 
-		if (access(fpath, X_OK) == 0)
+		commnd = check_and_get_exec(fpath);
+		if (commnd)
 		{
-			commnd = _strdup(fpath);
+
 			free_arr(&arr, tokens);
 			free(fpath);
 			free(copy);
 			fpath = NULL;
 			free(PATH);
 			return (commnd);
-
 		}
+
 
 		i++;
 		free(fpath);
 		fpath = NULL;
 	}
 
-	if (fl == 1)
-		free(PATH);
-
+	free(PATH);
 	free_arr(&arr, tokens);
 	free(copy);
 	return (NULL);
@@ -219,7 +246,7 @@ int handle_exit_status(g_var *sh, int status)
 			if (sh->status_code == 126)
 			{
 				perror("Permission denied");
-				sh->status_code = EACCES;
+				sh->status_code = 127;
 			}
 			else
 				if (sh->status_code == 127)

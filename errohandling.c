@@ -31,13 +31,14 @@ void int_To_Str(char *str, int num)
 
 /**
  * not_found - Handles the "not found" case.
+ * @sh: global variables
  * @prog: Name of the program.
  * @comd: Command that was not found.
  * @pid_no: Process ID number.
  * @msg: Error message.
  */
 
-void not_found(char *prog, char *comd, int pid_no, char *msg)
+void not_found(g_var *sh, char *prog, char *comd, int pid_no, char *msg)
 {
 	char *str = malloc(sizeof(char) * 4);
 	int len = 0;
@@ -45,14 +46,17 @@ void not_found(char *prog, char *comd, int pid_no, char *msg)
 	_memset(str, 0, 4);
 	len = int_len(pid_no);
 	str_buff(&str, pid_no, len);
-	_puts(prog);
-	_puts(": ");
-	_puts(comd);
-	_puts(": ");
-	_puts(str);
-	_puts(": ");
-	_puts(msg);
-	_puts("\n");
+
+	write(STDERR_FILENO, prog, _strlen(prog));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, str, _strlen(str));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, comd, _strlen(comd));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, msg, _strlen(msg));
+	write(STDERR_FILENO, "\n", 1);
+
+	sh->status_code = 127;
 	free(str);
 }
 /**

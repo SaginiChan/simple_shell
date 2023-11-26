@@ -479,6 +479,11 @@ cmd_n_list *add_node_end_sym(cmd_n_list **head, const char *str, char *sym);
 */
 int tokenize(char ***arr, char *strn, char *delim);
 /**
+ * process_tokens - Process tokens in the shell structure.
+ * @sh: Pointer to the shell structure.
+ */
+void process_tokens(g_var *sh);
+/**
  * control_d - Exits a command using CTR + D.
  * @shell: The pointer to struct variables.
  *
@@ -564,13 +569,14 @@ void free_alias(char **arr, int tokens);
 void int_To_Str(char *str, int num);
 /**
  * not_found - Handles the "not found" case.
+ * @sh: global variables
  * @prog: Name of the program.
  * @comd: Command that was not found.
  * @pid_no: Process ID number.
  * @msg: Error message.
  */
 
-void not_found(char *prog, char *comd, int pid_no, char *msg);
+void not_found(g_var *sh, char *prog, char *comd, int pid_no, char *msg);
 /**
  * illegal_no - Handles the "illegal number" case.
  * @prog_name: Name of the program.

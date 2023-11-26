@@ -43,3 +43,42 @@ int tokenize(char ***arr, char *strn, char *delim)
 
 	return (tokens);
 }
+/**
+ * process_tokens - Process tokens in the shell structure.
+ * @sh: Pointer to the shell structure.
+ */
+void process_tokens(g_var *sh)
+{
+	char **tm = NULL;
+	size_t size_a = 0;
+	int i = 0;
+
+	for (i = 0; i < sh->num_tokens - 1; ++i)
+	{
+		tm = NULL;
+		remove_emptyspaces(&sh->tokens[i]);
+		size_a = tokenize(&tm, sh->tokens[i], " ");
+
+		if (get_built_in(sh, tm[0]))
+		{
+			get_built_in(sh, tm[0])(&sh);
+		}
+		else
+		{
+			sh->command = check_cmd_exist(tm[0]);
+
+			if (sh->command != NULL)
+			{
+				execute(sh, tm, sh->environs);
+			}
+			else
+			{
+				not_found(sh, sh->prog_name, tm[0], sh->process_id, "not found");
+			}
+
+			free_arr(&tm, size_a);
+			free(sh->command);
+			sh->command = NULL;
+		}
+	}
+}

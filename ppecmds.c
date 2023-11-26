@@ -42,6 +42,7 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
 
 	exit(0);
 }
+
 /**
  * processCommand - Process the command by tokenizing and executing it.
  * @sh: Pointer to the Shell structure.
@@ -49,43 +50,20 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
  */
 void processCommand(g_var **sh, char *tmp)
 {
-	size_t size_a = 0;
-	char **tm;
-	int i = 0;
-
-	if (((*sh)->command || !isatty(STDIN_FILENO)))
+	if (((*sh)->command || (!isatty(STDIN_FILENO))))
 	{
 		free((*sh)->command);
 		(*sh)->command = NULL;
 		rplaceSp((*sh)->buf_pi);
 		remove_emptyspaces(&(*sh)->buf_pi);
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, "\n");
-		for (i = 0; i < (*sh)->num_tokens - 1; ++i)
-		{
-			tm = NULL;
-			remove_emptyspaces(&(*sh)->tokens[i]);
-			size_a = tokenize(&tm, (*sh)->tokens[i], " ");
-			/* printf("DEL%s", (*sh)->tokens[i]); */
-			if (get_built_in(*sh, tm[0]))
-			{
-				get_built_in(*sh, tm[0])(sh);
-			}
-			else
-			{
-				(*sh)->command = check_cmd_exist(tm[0]);
-				execute(*sh, tm, (*sh)->environs);
-				/* printf("ext sts %d", (*sh)->status_code); */
-			}
-
-			free_arr(&tm, size_a);
-			free((*sh)->command);
-			(*sh)->command = NULL;
-		}
-		cleanup_and_free_tokens(*sh);
+		process_tokens(*sh);
 	}
 	else
 	{
-		not_found((*sh)->prog_name, tmp, (*sh)->process_id, "not found");
+		free((*sh)->command);
+		(*sh)->command = NULL;
+		not_found(*sh, (*sh)->prog_name, tmp, (*sh)->process_id, "not found");
 		free(tmp);
 	}
 }
@@ -103,19 +81,18 @@ int chk_cmd(g_var **sh)
 	tmp = _strdup((*sh)->command);
 	free((*sh)->command);
 	(*sh)->command = NULL;
-
 	(*sh)->command = check_cmd_exist(tmp);
 	rmTb((*sh)->buf_pi);
 	remove_emptyspaces(&(*sh)->buf_pi);
 	free_arr(&((*sh)->tokens), (*sh)->num_tokens);
 	free(tmp);
 	tmp = _strdup((*sh)->command);
+
 	if (_strcmp((*sh)->buf_pi, "") == 0)
 	{
 		free(tmp);
 		return (0);
 	}
-
 	processCommand(sh, tmp);
 	free((*sh)->buf_pi);
 	(*sh)->buf_pi = NULL;
@@ -140,11 +117,13 @@ static int process_sle(g_var *sh, cmd_n_list **head, ppl *p)
 	{
 		sh->fl_pip = 0;
 	}
+
 	if (p != NULL)
 	{
 		free_arr(&(sh->tokens), sh->num_tokens);
 		sh->command  = _strdup(p->str);
 		sh->num_tokens = tokenize(&(sh->tokens), sh->command, " ");
+
 		if (hasSymbols(&sh))
 		{
 			check_symbols(&sh, head);
@@ -153,12 +132,14 @@ static int process_sle(g_var *sh, cmd_n_list **head, ppl *p)
 			cleanup_and_free_tokens(sh);
 			return (1);
 		}
+
 		if (get_built_in(sh, (sh->tokens)[0]))
 		{
 			get_built_in(sh, (sh->tokens)[0])(&sh);
 			cleanup_and_free_tokens(sh);
 			return (1);
 		}
+
 		if (sh->buf_pi == NULL)
 		{
 			sh->fl_pip = 1;
