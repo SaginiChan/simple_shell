@@ -21,6 +21,7 @@
 #define FLAG 0
 extern int flag;
 extern char **environ;
+
 /**
  * struct g_var - Shell variables struct
  * @PROMPT: prompt status
@@ -519,6 +520,14 @@ int check_semicolon(g_var **sh, cmd_list **head);
  * Return: return 2 on error 0 on success
  */
 int execute(g_var *shell, char **fin, char **envp);
+/**
+ * duplicateArray - Duplicates an array of strings.
+ * @original: The original array of strings.
+ * @size: The size of the array.
+ *
+ * Return: A duplicated array of strings.
+ */
+char **duplicateArray(char **original, size_t size);
 /**
  * array_sort - it sorts an array of str from
  *              shortest to longest variables.

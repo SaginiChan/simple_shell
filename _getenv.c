@@ -7,7 +7,7 @@
  */
 char *_getenv(char *var)
 {
-	char *val = NULL, *copy = NULL, *cp, temp[120] = {0};
+	char *val = NULL, *copy = NULL, *cp/* , *temp = NULL */;
 	char **env = environ;
 	int i = 0;
 
@@ -18,19 +18,17 @@ char *_getenv(char *var)
 
 	while (env[i] != NULL)
 	{
-		cp = _strdup(env[i]);
-		copy = _strtok(cp, "=");
+		cp = strdup(env[i]);
+		copy = strtok(cp, "=");
 
-		if (_strcmp(var, copy) == 0)
+		if (strcmp(var, copy) == 0)
 		{
-			val = _strdup((cp + _strlen(copy) + 1));
-			free(cp);
-			_strcpy(temp, val);
+			val = strdup(cp + strlen(copy) + 1);
+			free(copy);
 			return (val);
 		}
 
-		free(cp);
-		cp = NULL;
+		free(copy);
 		i++;
 	}
 

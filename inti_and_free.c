@@ -1,11 +1,11 @@
 #include "shell.h"
-
 void constructor(void) __attribute__((constructor));
 /**
  * constructor - print bfore main star
 */
 void constructor(void)
 {
+
 
 }
 /**
@@ -16,9 +16,9 @@ void constructor(void)
 void initialize_shell(g_var **sh, char **envp)
 {
 	(*sh)->buffer = NULL;
+
 	(*sh)->tokens = NULL;
 	(*sh)->command = NULL;
-	(*sh)->PATH = NULL;
 	(*sh)->process_id = 1;
 	(*sh)->num_tokens = 0;
 	(*sh)->added_envs = 0;
@@ -35,9 +35,8 @@ void initialize_shell(g_var **sh, char **envp)
 	(*sh)->size = 0;
 	(*sh)->mode = 0;
 	(*sh)->nread = 0;
-
+	(*sh)->PATH =  NULL;
 }
-
 /**
  * free_mem - frees memory previousely allocated
  * @buffer: buffer to be freed

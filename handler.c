@@ -65,7 +65,7 @@ void cleanup(g_var *shell)
 		free(shell->buffer);
 		shell->buffer = NULL;
 	}
-
+	/* free(shell->PATH); */
 	shell->nread = 0;
 	shell->num_tokens = 0;
 	shell->size = 0;
@@ -79,12 +79,11 @@ void cleanup(g_var *shell)
  */
 int exiting(g_var **shell)
 {
-	int status = 10;
+	int status = 0;
 	char *str = NULL;
 	g_var *sh = *shell;
 
 	str = sh->tokens[1];
-
 	if (str != NULL)
 	{
 		status = _atoi(str);
@@ -107,8 +106,9 @@ int exiting(g_var **shell)
 		free_arr(&(sh->tokens), sh->num_tokens);
 		free_arr(&(sh->alias), sh->alias_size);
 		free_arr(&(sh->pointers), sh->added_envs);
+		/* free(sh->PATH); */
 		cleanup(sh);
-		/* free_env(sh); */
+		status = sh->status_code;
 		free(*shell);
 		*shell = NULL;
 		exit(status);

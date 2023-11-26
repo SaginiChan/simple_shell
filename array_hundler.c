@@ -91,3 +91,34 @@ void addAtBeg(char *array[], int size, const char *element)
 
 	/*  (*size)++; */
 }
+/**
+ * duplicateArray - Duplicates an array of strings.
+ * @original: The original array of strings.
+ * @size: The size of the array.
+ *
+ * Return: A duplicated array of strings.
+ */
+char **duplicateArray(char **original, size_t size)
+{
+	size_t i = 0;
+	char **duplicate = malloc(size * sizeof(char *));
+
+	if (duplicate == NULL)
+	{
+		perror("Memory allocation error");
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; i < size; i++)
+	{
+		duplicate[i] = _strdup(original[i]);
+
+		if (duplicate[i] == NULL)
+		{
+			perror("Memory allocation error");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	return (duplicate);
+}

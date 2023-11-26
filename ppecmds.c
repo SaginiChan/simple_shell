@@ -65,12 +65,23 @@ void processCommand(g_var **sh, char *tmp)
 			tm = NULL;
 			remove_emptyspaces(&(*sh)->tokens[i]);
 			size_a = tokenize(&tm, (*sh)->tokens[i], " ");
-			(*sh)->command = check_cmd_exist(tm[0]);
-			execute(*sh, tm, (*sh)->environs);
+			/* printf("DEL%s", (*sh)->tokens[i]); */
+			if (get_built_in(*sh, tm[0]))
+			{
+				get_built_in(*sh, tm[0])(sh);
+			}
+			else
+			{
+				(*sh)->command = check_cmd_exist(tm[0]);
+				execute(*sh, tm, (*sh)->environs);
+				/* printf("ext sts %d", (*sh)->status_code); */
+			}
+
 			free_arr(&tm, size_a);
 			free((*sh)->command);
 			(*sh)->command = NULL;
 		}
+		cleanup_and_free_tokens(*sh);
 	}
 	else
 	{

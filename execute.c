@@ -1,6 +1,6 @@
 #include "shell.h"
 
-void handle_exit_status(g_var *sh, int status);
+int handle_exit_status(g_var *sh, int status);
 /**
  * conc_fpath - Concatenates the file path.
  * @filepath: Pointer to the file path.
@@ -18,6 +18,53 @@ char *conc_fpath(char *filepath, char *path_entry, char *cmd)
 
 	return (filepath);
 }
+/**
+ * build_path - Build PATH from path segments.
+ * @path_segments: Array of path segments.
+ * @num_segments: Number of segments in path_segments.
+ *
+ * Return: A pointer to the constructed PATH.
+ */
+char *build_path(char *path_segments[], int num_segments)
+{
+	char *PATH = NULL;
+	size_t ns  = 0, old = 0;
+	int j;
+
+	if (PATH == NULL)
+	{
+		PATH = malloc(sizeof(char) * (_strlen(path_segments[0]) + 1));
+
+		if (PATH != NULL)
+		{
+			_strcpy(PATH, path_segments[0]);
+
+			for (j = 1; j < num_segments; j++)
+			{
+				ns = sizeof(char) * (_strlen(PATH) + _strlen(path_segments[j]) + 2);
+				old = _strlen(PATH);
+				PATH = _realloc(PATH, old, ns);
+				if (PATH != NULL)
+				{
+					_strcat(PATH, ":");
+					_strcat(PATH, path_segments[j]);
+				}
+				else
+				{
+					fprintf(stderr, "Error: Failed to reallocate memory for PATH\n");
+					return (NULL);
+				}
+			}
+		}
+		else
+		{
+			fprintf(stderr, "Error: Failed to allocate memory for PATH\n");
+			return (NULL);
+		}
+	}
+
+	return (PATH);
+}
 
 /**
  * check_cmd_exist - Checks if a cmd exists in the PATH environment variable.
@@ -29,23 +76,40 @@ char *conc_fpath(char *filepath, char *path_entry, char *cmd)
 char *check_cmd_exist(char *term_cm)
 {
 	char *copy = NULL, *PATH;
-	int i = 0, tokens = 0, ttl = 0;
+	int i = 0, tokens = 0, ttl = 0, fl = 0;
 	char *fpath = NULL;
 	char **arr = NULL, *commnd, *strd = NULL;
+	char *path_seg[] = {
+		"/usr/local/sbin",
+		"/usr/local/bin",
+		"/usr/sbin",
+		"/usr/bin",
+		"/sbin",
+		"/bin",
+		"/usr/games",
+		"/usr/local/games"
+	};
+	int ele = sizeof(path_seg) / sizeof(path_seg[0]);
 
-	PATH = getenv("PATH");
+	PATH = _getenv("PATH");
 
-	if (NULL == PATH)
-		return (NULL);
+	if (PATH == NULL)
+	{
+		PATH = build_path(path_seg, ele);
+		fl = 1;
+	}
+
 	if (access(term_cm, X_OK) == 0)
 	{
 		strd = _strdup(term_cm);
+		free(PATH);
 		return (strd);
 	}
 
 	copy = _strdup(PATH);
 	tokens = tokenize(&arr, copy, ":");
 	array_sort(arr, tokens);
+
 	while (arr[i] != NULL)
 	{
 		ttl = _strlen(term_cm) + _strlen(arr[i]);
@@ -53,7 +117,6 @@ char *check_cmd_exist(char *term_cm)
 
 		if (fpath == NULL)
 			return (NULL);
-
 
 		fpath = conc_fpath(fpath, arr[i], term_cm);
 
@@ -64,6 +127,7 @@ char *check_cmd_exist(char *term_cm)
 			free(fpath);
 			free(copy);
 			fpath = NULL;
+			free(PATH);
 			return (commnd);
 
 		}
@@ -72,6 +136,9 @@ char *check_cmd_exist(char *term_cm)
 		free(fpath);
 		fpath = NULL;
 	}
+
+	if (fl == 1)
+		free(PATH);
 
 	free_arr(&arr, tokens);
 	free(copy);
@@ -114,12 +181,14 @@ int execute(g_var *shell, char **fin, char **envp)
 	{
 		wait(&status);
 		handle_exit_status(sh, status);
+
 		if (sh->buf_pi == NULL)
 		{
 			free(sh->command);
 			sh->command = NULL;
 			refresh(sh);
 		}
+
 		(sh->process_id)++;
 		return (sh->status_code);
 	}
@@ -134,8 +203,9 @@ int execute(g_var *shell, char **fin, char **envp)
  *
  * This function process the exit status of a child process, updates the shell
  * context status_code accordingly, and prints relevant error messages.
+ * Return: returns exit status
  */
-void handle_exit_status(g_var *sh, int status)
+int handle_exit_status(g_var *sh, int status)
 {
 	if (WIFEXITED(status))
 	{
@@ -143,7 +213,7 @@ void handle_exit_status(g_var *sh, int status)
 
 		if (sh->status_code == 0)
 		{
-			return;
+			return (sh->status_code);
 		}
 		else
 			if (sh->status_code == 126)
@@ -156,20 +226,26 @@ void handle_exit_status(g_var *sh, int status)
 				{
 					perror("No such file or directory");
 					sh->status_code = ENOENT;
+					return (2);
 				}
 				else
 					if (sh->status_code >= 128)
 					{
 						/* int signal_number = sh->status_code - 128; */
 						sh->status_code = sh->status_code;
+						return (sh->status_code);
 					}
 					else
 					{
 						sh->status_code = 2;
+						return (sh->status_code);
 					}
 	}
 	else
 	{
 		sh->status_code = 2;
+		return (sh->status_code);
 	}
+
+	return (sh->status_code);
 }

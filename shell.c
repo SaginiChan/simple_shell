@@ -9,17 +9,18 @@
 */
 int main(int argc, char  *argv[], char *envp[])
 {
-	g_var *sh = _calloc(sizeof(char *), sizeof(gbf_var));
+	g_var *sh = _calloc(sizeof(char *), sizeof(g_var));
+	int status = 0;
 
 	if (sh == NULL)
 	{
 		exit(1);
 	}
-
 	(void) argc;
 	sh->prog_name = argv[0];
 	initialize_shell(&sh, envp);
 	shell_prompt(&sh);
+	status = sh->status_code;
 	free(sh);
-	return (0);
+	return (status);
 }
