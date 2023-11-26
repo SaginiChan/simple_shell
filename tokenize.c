@@ -46,10 +46,11 @@ int tokenize(char ***arr, char *strn, char *delim)
 /**
  * process_tokens - Process tokens in the shell structure.
  * @sh: Pointer to the shell structure.
+ * @p: list of pipe commands
  */
-void process_tokens(g_var *sh)
+void process_tokens(g_var *sh, ppl **p)
 {
-	char **tm = NULL;
+	char **tm = NULL, *temp = NULL;
 	size_t size_a = 0;
 	int i = 0;
 
@@ -57,28 +58,33 @@ void process_tokens(g_var *sh)
 	{
 		tm = NULL;
 		remove_emptyspaces(&sh->tokens[i]);
+		temp = _strdup(sh->tokens[i]);
 		size_a = tokenize(&tm, sh->tokens[i], " ");
-
 		if (get_built_in(sh, tm[0]))
 		{
-			get_built_in(sh, tm[0])(&sh);
+			sh->fl_pip = 2;
+			if (get_built_in(sh, tm[0])(&sh) == 3)
+			{
+				free_arr(&sh->tokens, sh->num_tokens);
+				free_arr(&tm, size_a);
+				sh->num_tokens = tokenize(&sh->tokens, temp, " ");
+				free_pip(p);
+				free(temp);
+				sh->fl_pip = 8;
+				exiting(&sh);
+			}
 		}
 		else
 		{
 			sh->command = check_cmd_exist(tm[0]);
-
 			if (sh->command != NULL)
-			{
 				execute(sh, tm, sh->environs);
-			}
 			else
-			{
 				not_found(sh, sh->prog_name, tm[0], sh->process_id, "not found");
-			}
-
 			free_arr(&tm, size_a);
 			free(sh->command);
 			sh->command = NULL;
 		}
+		free(temp);
 	}
 }

@@ -34,7 +34,6 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
 
 	if (get_built_in(*sh, ((*sh)->tokens)[0]))
 	{
-		/* (*sh)->command = _strdup((*sh)->buffer); */
 		get_built_in(*sh, ((*sh)->tokens)[0])(sh);
 		cleanup_and_free_tokens(*sh);
 		exit(1);
@@ -47,8 +46,9 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
  * processCommand - Process the command by tokenizing and executing it.
  * @sh: Pointer to the Shell structure.
  * @tmp: Temporary string for non-interactive processing.
+ * @p: list of pipe commands
  */
-void processCommand(g_var **sh, char *tmp)
+void processCommand(g_var **sh, char *tmp, ppl **p)
 {
 	char *com = (*sh)->command;
 
@@ -60,7 +60,8 @@ void processCommand(g_var **sh, char *tmp)
 		rplaceSp((*sh)->buf_pi);
 		remove_emptyspaces(&(*sh)->buf_pi);
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, "\n");
-		process_tokens(*sh);
+		free(tmp);
+		process_tokens(*sh, p);
 	}
 	else
 	{
@@ -72,9 +73,10 @@ void processCommand(g_var **sh, char *tmp)
 /**
  * chk_cmd - check command exist.
  * @sh: Pointer to the shell structure.
+ * @p: list of pipe commands
  * Return: 1 if true, 0 otherwise.
  */
-int chk_cmd(g_var **sh)
+int chk_cmd(g_var **sh, ppl **p)
 {
 	char *tmp = NULL;
 
@@ -91,11 +93,10 @@ int chk_cmd(g_var **sh)
 		free(tmp);
 		return (0);
 	}
-	processCommand(sh, tmp);
+	processCommand(sh, tmp, p);
 	free((*sh)->buf_pi);
 	(*sh)->buf_pi = NULL;
 	cleanup_and_free_tokens(*sh);
-	free(tmp);
 	return (1);
 }
 /**
@@ -130,20 +131,12 @@ static int process_sle(g_var *sh, cmd_n_list **head, ppl *p)
 			cleanup_and_free_tokens(sh);
 			return (1);
 		}
-
-		if (get_built_in(sh, (sh->tokens)[0]))
-		{
-			get_built_in(sh, (sh->tokens)[0])(&sh);
-			cleanup_and_free_tokens(sh);
-			return (1);
-		}
-
 		if (sh->buf_pi == NULL)
 		{
 			sh->fl_pip = 1;
 			proces_buf(&sh, sh->command);
 		}
-		chk_cmd(&sh);
+		chk_cmd(&sh, &p);
 		cleanup_and_free_tokens(sh);
 	}
 	return (0);

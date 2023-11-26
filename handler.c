@@ -24,6 +24,7 @@ void refresh(g_var *shell)
 
 	if (sh->tokens)
 		free_arr(&(sh->tokens), sh->num_tokens);
+
 	sh->tokens = NULL;
 
 	if (shell->command != NULL)
@@ -65,6 +66,7 @@ void cleanup(g_var *shell)
 		free(shell->buffer);
 		shell->buffer = NULL;
 	}
+
 	/* free(shell->PATH); */
 	shell->nread = 0;
 	shell->num_tokens = 0;
@@ -84,6 +86,11 @@ int exiting(g_var **shell)
 	g_var *sh = *shell;
 
 	str = sh->tokens[1];
+
+	if (sh->fl_pip == 2)
+	{
+		return (3);
+	}
 	if (str != NULL)
 	{
 		status = _atoi(str);
@@ -100,20 +107,19 @@ int exiting(g_var **shell)
 			return (-1);
 		}
 	}
-
 	else
 	{
 		free_arr(&(sh->tokens), sh->num_tokens);
 		free_arr(&(sh->alias), sh->alias_size);
 		free_arr(&(sh->pointers), sh->added_envs);
-		/* free(sh->PATH); */
+		free_arr(&(sh->pip_cmds), sh->pip_num);
+		free(sh->buf_pi);
 		cleanup(sh);
 		status = sh->status_code;
 		free(*shell);
 		*shell = NULL;
 		exit(status);
 	}
-
 	return (-1);
 }
 /**

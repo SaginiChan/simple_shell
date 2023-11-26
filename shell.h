@@ -481,8 +481,9 @@ int tokenize(char ***arr, char *strn, char *delim);
 /**
  * process_tokens - Process tokens in the shell structure.
  * @sh: Pointer to the shell structure.
+ * @p: list of pipe commands
  */
-void process_tokens(g_var *sh);
+void process_tokens(g_var *sh, ppl **p);
 /**
  * control_d - Exits a command using CTR + D.
  * @shell: The pointer to struct variables.
