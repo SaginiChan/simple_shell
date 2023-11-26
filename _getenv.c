@@ -16,12 +16,18 @@ char *_getenv(char *var)
 		return (NULL);
 	}
 
-	while (env[i] != NULL)
+	if (env == NULL)
+	{
+		return ("PATH");
+	}
+
+
+	while (env && env[i] != NULL)
 	{
 		cp = strdup(env[i]);
 		copy = strtok(cp, "=");
 
-		if (strcmp(var, copy) == 0)
+		if (strcmp(var, copy) == 0 && strcmp(copy, ".") != 0)
 		{
 			val = strdup(cp + strlen(copy) + 1);
 			free(copy);

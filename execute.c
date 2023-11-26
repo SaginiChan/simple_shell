@@ -2,6 +2,43 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+/**
+ * check_path - Check if a command exists in the current directory.
+ * @cmd: The command to check.
+ *
+ * Return: An empty string if the command is found,
+ * otherwise the original command.
+ */
+char *check_path(char *cmd)
+{
+	DIR *dir;
+	struct dirent *entry;
+
+	dir = opendir(".");
+
+	if (dir == NULL)
+	{
+		perror("Error opening directory");
+		return (NULL);
+	}
+
+	entry = readdir(dir);
+
+	while (entry != NULL)
+	{
+		if (_strcmp(entry->d_name, cmd) == 0)
+		{
+			closedir(dir);
+			return (NULL);
+		}
+
+		entry = readdir(dir);
+	}
+
+	closedir(dir);
+
+	return (cmd);
+}
 
 /**
  * check_and_get_exec - Check if a file is executable and return its path.
@@ -14,6 +51,12 @@ char *check_and_get_exec(char *term_cm)
 {
 	char *strd = NULL;
 	struct stat file_stat;
+
+	if (!check_path(term_cm))
+	{
+		return (NULL);
+	}
+
 
 	if (access(term_cm, X_OK | R_OK) == 0)
 	{
@@ -128,12 +171,19 @@ char *check_cmd_exist(char *term_cm)
 	{
 		PATH = build_path(path_seg, ele);
 	}
+	if (_strcmp(PATH, "PATH") == 0)
+	{
+		return (NULL);
+	}
+
 	commnd = check_and_get_exec(term_cm);
+
 	if (commnd)
 	{
 		free(PATH);
 		return (commnd);
 	}
+
 	copy = _strdup(PATH);
 	tokens = tokenize(&arr, copy, ":");
 	array_sort(arr, tokens);
@@ -149,6 +199,7 @@ char *check_cmd_exist(char *term_cm)
 		fpath = conc_fpath(fpath, arr[i], term_cm);
 
 		commnd = check_and_get_exec(fpath);
+
 		if (commnd)
 		{
 

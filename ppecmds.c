@@ -53,7 +53,7 @@ void processCommand(g_var **sh, char *tmp)
 	char *com = (*sh)->command;
 
 	if ((com && isatty(STDIN_FILENO)) ||
-			(!isatty(STDIN_FILENO)))
+			(!isatty(STDIN_FILENO) && (*sh)->environs != NULL))
 	{
 		free((*sh)->command);
 		(*sh)->command = NULL;
