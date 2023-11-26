@@ -51,19 +51,9 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
 void processCommand(g_var **sh, char *tmp)
 {
 	char *com = (*sh)->command;
-	int fl = 0;
-
-	if (com)
-	{
-		if (_strcmp(com, tmp) != 0)
-		{
-			fl = 1;
-		}
-
-	}
 
 	if ((com && isatty(STDIN_FILENO)) ||
-			(!isatty(STDIN_FILENO) && fl == 0))
+			(!isatty(STDIN_FILENO)))
 	{
 		free((*sh)->command);
 		(*sh)->command = NULL;
