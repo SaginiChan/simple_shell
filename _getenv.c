@@ -16,12 +16,6 @@ char *_getenv(char *var)
 		return (NULL);
 	}
 
-	if (env == NULL)
-	{
-		return ("PATH");
-	}
-
-
 	while (env && env[i] != NULL)
 	{
 		cp = strdup(env[i]);
@@ -36,6 +30,11 @@ char *_getenv(char *var)
 
 		free(copy);
 		i++;
+	}
+
+	if (i <= 2)
+	{
+		return ("PATH");
 	}
 
 	return (NULL);
