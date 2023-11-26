@@ -138,6 +138,11 @@ int _printenv(g_var **sh)
 	char **env = (*sh)->environs;
 	int i = 0;
 
+	if ((*sh)->fl_pip == 2)
+	{
+		return (4);
+	}
+
 	if (env == NULL)
 	{
 		return (1);
