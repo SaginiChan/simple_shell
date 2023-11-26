@@ -174,6 +174,7 @@ char *check_cmd_exist(char *term_cm)
 		{
 			return (NULL);
 		}
+		free(PATH);
 		PATH = build_path(path_seg, ele);
 	}
 
