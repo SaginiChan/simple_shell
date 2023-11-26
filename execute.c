@@ -166,17 +166,18 @@ char *check_cmd_exist(char *term_cm)
 	int ele = sizeof(path_seg) / sizeof(path_seg[0]);
 
 	PATH = _getenv("PATH");
+
 	if (PATH == NULL)
 	{
+		PATH = check_and_get_exec(term_cm);
+		if (PATH == NULL)
+		{
+			return (NULL);
+		}
 		PATH = build_path(path_seg, ele);
-	}
-	if (_strcmp(PATH, "PATH") == 0)
-	{
-		return (NULL);
 	}
 
 	commnd = check_and_get_exec(term_cm);
-
 	if (commnd)
 	{
 		free(PATH);

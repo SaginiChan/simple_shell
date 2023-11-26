@@ -32,10 +32,5 @@ char *_getenv(char *var)
 		i++;
 	}
 
-	if (i <= 2)
-	{
-		return ("PATH");
-	}
-
 	return (NULL);
 }
