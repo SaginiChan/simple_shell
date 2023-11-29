@@ -94,10 +94,11 @@ int exiting(g_var **shell)
 	if (str != NULL)
 	{
 		status = _atoi(str);
-
 		if (status >= 0)
 		{
 			free_arr(&(sh->tokens), sh->num_tokens);
+			free_arr(&(sh->pip_cmds), sh->pip_num);
+			free(sh->buf_pi);
 			cleanup(sh);
 			free(*shell);
 			exit(status);
@@ -117,7 +118,6 @@ int exiting(g_var **shell)
 		cleanup(sh);
 		status = sh->status_code;
 		free(*shell);
-		*shell = NULL;
 		exit(status);
 	}
 	return (-1);

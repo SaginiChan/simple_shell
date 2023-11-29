@@ -44,13 +44,31 @@ int tokenize(char ***arr, char *strn, char *delim)
 	return (tokens);
 }
 /**
+ * cleanup_and_exit - Cleans up resources and exits the program.
+ * @sh: Pointer to the g_var structure.
+ * @tm: Pointer to the char array.
+ * @temp: Pointer to the char array.
+ * @size_a: The size of the char array.
+ * @p: Pointer to the ppl structure.
+ */
+void cleanup_and_exit(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
+{
+	free_arr(&sh->tokens, sh->num_tokens);
+	free_arr(&tm, size_a);
+	sh->num_tokens = tokenize(&sh->tokens, temp, " ");
+	free_pip(&p);
+	free(temp);
+	sh->fl_pip = 8;
+}
+
+/**
  * process_builtin - Process built-in commands in the shell.
- * @sh: Pointer to the shell structure.
+ * @sh: Pointer to the g_var structure.
  * @tm: Array of command tokens.
  * @temp: Temporary string.
  * @size_a: Size of array.
  * @p: Pointer to pip_t structure.
- * Return: return 1 if true 0 if false
+ * Return: 1 if successful, 0 otherwise.
  */
 int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 {
@@ -61,28 +79,28 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 		sh->fl_pip = 2;
 		result = get_built_in(sh, tm[0])(&sh);
 
-		if (result == 3 || result == 4)
+		switch (result)
 		{
-			free_arr(&sh->tokens, sh->num_tokens);
-			free_arr(&tm, size_a);
-			sh->num_tokens = tokenize(&sh->tokens, temp, " ");
-			free_pip(&p);
-			free(temp);
-			sh->fl_pip = 8;
-
-			if (result == 3)
-			{
+			case 3:
+				cleanup_and_exit(sh, tm, temp, size_a, p);
 				exiting(&sh);
-			}
-			else
-				if (result == 4)
-				{
-					_printenv(&sh);
-					exiting(&sh);
-				}
-		}
+				return (1);
 
-		return (1);
+			case 4:
+				cleanup_and_exit(sh, tm, temp, size_a, p);
+				_printenv(&sh);
+				exiting(&sh);
+				return (1);
+
+			case 5:
+				break;
+
+			case 6:
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	return (0);
