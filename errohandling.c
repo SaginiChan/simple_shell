@@ -62,27 +62,31 @@ void not_found(g_var *sh, char *prog, char *comd, int pid_no, char *msg)
 /**
  * illegal_no - Handles the "illegal number" case.
  * @prog_name: Name of the program.
+ * @com: command that fails
  * @pr_id: Process ID number.
  * @msg: Error message.
  * @str: Command that was not found.
  */
-void illegal_no(char *prog_name, int pr_id, char *msg, char *str)
+void illegal_no(char *prog_name, char *com, int pr_id, char *msg, char *str)
 {
 	char *string = malloc(sizeof(char) * 4);
 	int len = 0;
 
 	_memset(string, 0, 4);
 	len = int_len(pr_id);
-	string = str_buff(&str, pr_id, len);
-	_puts(prog_name);
-	_puts(": ");
-	_puts(string);
-	_puts(": ");
-	_puts(msg);
-	_puts(": ");
-	_puts(str);
-	_puts("\n");
-	free(str);
+	str_buff(&string, pr_id, len);
+
+	write(STDERR_FILENO, prog_name, strlen(prog_name));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, string, strlen(string));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, com, strlen(com));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, msg, strlen(msg));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, str, strlen(str));
+	write(STDERR_FILENO, "\n", 1);
+	free(string);
 }
 /**
  * usage_err - Handles the "usage erro" case.

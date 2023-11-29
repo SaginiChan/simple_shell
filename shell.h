@@ -581,11 +581,12 @@ void not_found(g_var *sh, char *prog, char *comd, int pid_no, char *msg);
 /**
  * illegal_no - Handles the "illegal number" case.
  * @prog_name: Name of the program.
+ * @com: commans that failed
  * @pr_id: Process ID number.
  * @msg: Error message.
  * @str: Command that was not found.
  */
-void illegal_no(char *prog_name, int pr_id, char *msg, char *str);
+void illegal_no(char *prog_name, char *com, int pr_id, char *msg, char *str);
 /**
  * usage_err - Handles the "usage erro" case.
  * @str: error messege
