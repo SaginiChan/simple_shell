@@ -105,7 +105,13 @@ int exiting(g_var **shell)
 		}
 		else
 		{
-			return (-1);
+			illegal_no(sh->prog_name, sh->tokens[0], sh->process_id, "Illegal number", str);
+			free_arr(&(sh->tokens), sh->num_tokens);
+			free_arr(&(sh->pip_cmds), sh->pip_num);
+			free(sh->buf_pi);
+			cleanup(sh);
+			free(*shell);
+			exit (2);
 		}
 	}
 	else
