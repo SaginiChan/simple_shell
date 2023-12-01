@@ -20,7 +20,7 @@ int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h, ppl *p)
 		return (1);
 	}
 
-	if (hasSymbols(sh))
+	if (hasSymbols(sh) && (*sh)->buffer)
 	{
 		(*sh)->command = _strdup((*sh)->buffer);
 		check_symbols(sh, h);
@@ -90,14 +90,17 @@ void shell_prompt(g_var **sh)
 		remove_emptyspaces(&((*sh)->buffer));
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buffer, " ");
 		checks_ser(sh);
+		if (!(*sh)->buffer)
+		{
+			cleanup_and_free_tokens(*sh);
+			continue;
+		}
 		if (process_special_cases(sh, &head, &h, pipes) == 1)
 			continue;
 
 		(*sh)->command = check_cmd_exist((*sh)->tokens[0]);
-
 		if ((*sh)->command)
 		{
-
 			execute(*sh, (*sh)->tokens, (*sh)->environs);
 			continue;
 		}

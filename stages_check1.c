@@ -78,10 +78,13 @@ void process_hsh_sym(g_var **sh)
 		i++;
 	}
 
+
 	if (flag == 1)
 	{
 		free((*sh)->buffer);
 		(*sh)->buffer = NULL;
+		if (len + space == 0)
+			return;
 		(*sh)->buffer = _calloc(len + space, sizeof(char));
 		i = 0;
 		j = 1;
