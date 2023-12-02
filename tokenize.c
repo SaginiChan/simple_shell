@@ -131,7 +131,6 @@ void process_tokens(g_var *sh, ppl **p)
 		else
 		{
 			sh->command = check_cmd_exist(tm[0]);
-
 			if (sh->command != NULL)
 				execute(sh, tm, sh->environs);
 			else

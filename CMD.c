@@ -1,5 +1,22 @@
 #include "shell.h"
 /**
+ * handleCommon - Handles common operations for special cases.
+ *
+ * @sh: Pointer to the shell structure.
+ * @p: Pointer to the list of pipe cmds.
+ * @h: Pointer to the list of commands with symbols.
+ * Return: 1 on success, indicating that the process has been handled.
+ */
+int handleCommon(g_var **sh, ppl **p, cmd_n_list **h)
+{
+	(*sh)->pip_num = tokenize(&((*sh)->pip_cmds), (*sh)->buffer, "|");
+	ex_pipes(sh, p);
+	proc_pip(*sh, h, p);
+	free_arr(&((*sh)->pip_cmds), (*sh)->pip_num);
+	free_pip(p);
+	return (1);
+}
+/**
  * process_special_cases - Process special cases in user input.
  * @sh: Pointer to the shell structure.
  * @h: pointer to list of commands with symbols
@@ -9,6 +26,11 @@
  */
 int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h, ppl *p)
 {
+	if (!isatty(STDIN_FILENO))
+	{
+		handleCommon(sh, &p, h);
+		return (1);
+	}
 
 	if (check_semicolon(sh, head))
 	{
@@ -31,13 +53,9 @@ int process_special_cases(g_var **sh, cmd_list **head, cmd_n_list **h, ppl *p)
 		cleanup(*sh);
 		return (1);
 	}
-	if (_strchr((*sh)->buffer, '|') || !isatty(STDIN_FILENO))
+	if (_strchr((*sh)->buffer, '|'))
 	{
-		(*sh)->pip_num = tokenize(&((*sh)->pip_cmds), (*sh)->buffer, "|");
-		ex_pipes(sh, &p);
-		proc_pip(*sh, h, &p);
-		free_arr(&((*sh)->pip_cmds), (*sh)->pip_num);
-		free_pip(&p);
+		handleCommon(sh, &p, h);
 		return (1);
 	}
 	if (get_built_in(*sh, ((*sh)->tokens)[0]))
@@ -76,6 +94,7 @@ void shell_prompt(g_var **sh)
 	char *p_nm = (*sh)->prog_name, *msg = "not found";
 
 	signal(SIGINT, sigint_handler);
+
 	while ((*sh)->PROMPT)
 	{
 		if (!isatty(STDIN_FILENO))
@@ -90,6 +109,7 @@ void shell_prompt(g_var **sh)
 		remove_emptyspaces(&((*sh)->buffer));
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buffer, " ");
 		checks_ser(sh);
+
 		if (!(*sh)->buffer)
 		{
 			cleanup_and_free_tokens(*sh);
@@ -106,7 +126,6 @@ void shell_prompt(g_var **sh)
 		}
 		else
 			not_found(*sh, p_nm, ((*sh)->tokens)[0], (*sh)->process_id, msg);
-
 		cleanup_and_free_tokens(*sh);
 	}
 }

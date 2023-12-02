@@ -63,6 +63,7 @@ int (*get_built_in(g_var *shell, char *str))(g_var **shell)
 		{"exit", exiting},
 		{"env", _printenv},
 		{"echo", _echo},
+		{"/bin/echo", _echo},
 		{"alias", _alias},
 		{"cd", _cd},
 		{NULL, NULL}
