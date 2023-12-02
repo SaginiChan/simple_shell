@@ -95,16 +95,21 @@ void check_sm(g_var **sh, char *status, int ln, char *buf, int *i, int len2)
 int _echo(g_var **sh)
 {
 	int int_ln = int_len((*sh)->status_code), i = 0, pi_ln = 0;
-	int len2 = strlen((*sh)->tokens[0]) + 1, count = 0;
-	char *status = NULL, *buf = NULL, *str = NULL;
+	int len2 = strlen((*sh)->tokens[0]) + 1, count = 0, n_tm = 0;
+	char *status = NULL, *buf = NULL, *str = NULL, **tmp = NULL;
 	pid_t pid = getpid();
+
+	if ((*sh)->fl_pip == 2)
+	{
+		return (2);
+	}
 
 	if (!(*sh)->command)
 		return (1);
-
+	n_tm = tokenize(&tmp, (*sh)->command, " ");
+	len2  = _strlen(tmp[0]) + 1;
 	while ((*sh)->command[len2 + count])
 		count++;
-
 	pi_ln = int_len(pid);
 	buf = _calloc((pi_ln + count + int_ln + 1), sizeof(char));
 	str = _calloc(_strlen((*sh)->command) + 2, sizeof(char));
@@ -122,6 +127,7 @@ int _echo(g_var **sh)
 	}
 	proces_buf(sh, buf);
 	_puts("\n");
+	free_arr(&tmp, n_tm);
 	free(buf);
 	free(str);
 	return (0);

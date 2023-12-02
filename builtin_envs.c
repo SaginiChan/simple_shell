@@ -29,6 +29,53 @@ int add_environment_variable(g_var **sh, char **env, int *i)
 
 	return (0);
 }
+/**
+ * update_pointers - Updates environment pointers in the current process.
+ *
+ * @sh: Global variable containing pointers to be updated.
+ * @env: Array of environment variables.
+ * @i: index of envs
+ * Return:
+ * Returns 1 if a new environment variable is added, 0 otherwise.
+ */
+int update_pointers(g_var **sh, char **env, int *i)
+{
+	size_t old, nw_size;
+	int k = 0;
+	char *cp, *copy;
+
+	if ((*sh)->pointers == NULL)
+	{
+		(*sh)->pointers = malloc(sizeof(char *));
+	}
+	else
+	{
+		old = sizeof(char *) * ((*sh)->added_envs);
+		nw_size = sizeof(char *) * ((*sh)->added_envs + 1);
+		(*sh)->pointers = _realloc((*sh)->pointers, old, nw_size);
+	}
+
+	while (env[k] != NULL)
+		k++;
+
+	while (env[*i] != NULL)
+	{
+		cp = _strdup(env[*i]);
+		copy = _strtok(cp, "=");
+
+		if (_strcmp((*sh)->tokens[1], copy) == 0)
+		{
+			add_environment_variable(sh, env, i);
+			free(cp);
+			return (1);
+		}
+
+		free(cp);
+		*i += 1;
+	}
+
+	return (0);
+}
 
 /**
  * _setenv - it set environment var for the current proccess
@@ -38,45 +85,34 @@ int add_environment_variable(g_var **sh, char **env, int *i)
  */
 int _setenv(g_var **sh)
 {
-	char *copy = NULL, *cp = NULL;
+	/* char *copy = NULL, *cp = NULL; */
 	char **env = (*sh)->environs;
-	int i = 0, k = 0,  old = 0, nw_size = 0;
+	int i = 0;
+
+	if ((*sh)->fl_pip == 2)
+		return (5);
 
 	if ((*sh)->num_tokens == 2)
 	{
 		usage_err("Usage: setenv VARIABLE VALUE");
 		return (1);
 	}
-	if (str_contains((*sh)->tokens[2], '='))
+
+	if (_strchr((*sh)->tokens[1], '='))
 	{
 		usage_err("Usage: setenv VARIABLE VALUE");
 		return (1);
 	}
-	if ((*sh)->pointers ==  NULL)
-		(*sh)->pointers = malloc(sizeof(char *) * 1);
+
+	if (update_pointers(sh, env, &i))
+	{
+	}
 	else
 	{
-		old = (sizeof(char *) * ((*sh)->added_envs));
-		nw_size = (sizeof(char *) * ((*sh)->added_envs + 1));
-		(*sh)->pointers = _realloc((*sh)->pointers, old, nw_size);
+		add_environment_variable(sh, env, &i);
+		env[i + 1] = NULL;
 	}
-	while (env[k] != NULL)
-		k++;
-	while (env[i] != NULL)
-	{
-		cp = _strdup(env[i]);
-		copy = _strtok(cp, "=");
-		if (_strcmp((*sh)->tokens[1], copy) == 0)
-		{
-			add_environment_variable(sh, env, &i);
-			free(cp);
-			return (0);
-		}
-		free(cp);
-		i++;
-	}
-	add_environment_variable(sh, env, &i);
-	env[i + 1] = NULL;
+
 	return (0);
 }
 /**
@@ -91,22 +127,22 @@ int _unsetenv(g_var **sh)
 	char **env = (*sh)->environs;
 	int i = 0, j = 0, k = 0;
 
+	if ((*sh)->fl_pip)
+	{
+		return (6);
+	}
 	if ((*sh)->tokens[1] == NULL)
 	{
 		usage_err("unsetenv: not enough arguments");
 		return (1);
 	}
-
 	if (str_contains((*sh)->tokens[1], '='))
 	{
 		usage_err("Usage: unsetenv VARIABLE");
 		return (1);
 	}
-
-
 	while (env[k] != NULL)
 		k++;
-
 	while (env[i] != NULL)
 	{
 		cp = _strdup(env[i]);

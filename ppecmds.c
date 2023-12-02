@@ -88,6 +88,7 @@ int chk_cmd(g_var **sh, ppl **p)
 	rmTb((*sh)->buf_pi);
 	remove_emptyspaces(&(*sh)->buf_pi);
 	free_arr(&((*sh)->tokens), (*sh)->num_tokens);
+
 	if (_strcmp((*sh)->buf_pi, "") == 0)
 	{
 		free(tmp);
