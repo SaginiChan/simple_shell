@@ -21,6 +21,7 @@ int main(int argc, char  *argv[], char *envp[])
 	initialize_shell(&sh, envp);
 	shell_prompt(&sh);
 	status = sh->status_code;
+	free_arr(&(sh->pointers), sh->added_envs);
 	free(sh);
 	return (status);
 }
