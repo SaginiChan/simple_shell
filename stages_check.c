@@ -139,3 +139,44 @@ void check_symbols(g_var **sh, cmd_n_list **head)
 	}
 	free(buf);
 }
+/**
+ * check_semicolon_tk - it checks if colon exists if
+ *                   exists breaks the command into list
+ * @string: string in struct
+ * @head: head of the list;
+ *
+ * Return: return 1 if semicolon found and 0 otherwise
+*/
+int check_semicolon_tk(char *string, cmd_list **head)
+{
+	int i = 0, flg = 0;
+	char *str = NULL, *strd = NULL;
+
+	while (string && string[i])
+	{
+		if (string[i] == ';')
+		{
+			flg = 1;
+			break;
+		}
+
+		i++;
+	}
+
+	if (flg == 1)
+	{
+		strd = strdup(string);
+		str = _strtok(strd, ";");
+
+		while (str)
+		{
+			add_node_end(head, str);
+			str = _strtok(NULL, ";");
+		}
+
+		free(strd);
+		return (1);
+	}
+	else
+		return (0);
+}

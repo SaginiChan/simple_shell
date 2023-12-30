@@ -128,10 +128,12 @@ static int process_sle_command(const cmd_list *h, g_var *sh, cmd_n_list **head)
 			cleanup_and_free_tokens(sh);
 			return (1);
 		}
+		free(sh->command);
 		sh->command = check_cmd_exist(sh->tokens[0]);
 		if (sh->command)
 		{
 			execute(sh, sh->tokens,  sh->environs);
+			cleanup_and_free_tokens(sh);
 			return (1);
 		}
 		else

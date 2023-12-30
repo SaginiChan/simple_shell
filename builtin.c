@@ -106,10 +106,13 @@ int _echo(g_var **sh)
 
 	if (!(*sh)->command)
 		return (1);
+
 	n_tm = tokenize(&tmp, (*sh)->command, " ");
 	len2  = _strlen(tmp[0]) + 1;
+
 	while ((*sh)->command[len2 + count])
 		count++;
+
 	pi_ln = int_len(pid);
 	buf = _calloc((pi_ln + count + int_ln + 1), sizeof(char));
 	str = _calloc(_strlen((*sh)->command) + 2, sizeof(char));
@@ -133,6 +136,45 @@ int _echo(g_var **sh)
 	return (0);
 }
 /**
+ * check_file_permissions - Check file permissions and handle error if needed.
+ * @arg: directory path
+ * @sh:  gloabl variables
+ * Return: Returns 1 if there's an error, 0 otherwise.
+ */
+int check_file_permissions(const char *arg, g_var **sh)
+{
+	struct stat fs;
+	char buf[BUFSIZ];
+	int r  = 0;
+
+	r = stat(arg, &fs);
+	if (r == -1)
+	{
+		fprintf(stderr, "File error\n");
+		return (2);
+	}
+	if (stat(arg, &fs) == -1)
+	{
+		perror("stat");
+		return (1);
+	}
+
+	if (!(fs.st_mode & S_IRUSR) ||
+	!(fs.st_mode & S_IWUSR) || (fs.st_mode & S_IXUSR))
+	{
+		_strcat(buf, (*sh)->prog_name);
+		_strcat(buf, ": ");
+		_strcat(buf, "1:");
+		_strcat(buf, "cd ");
+		_strcat(buf, "can't cd to ");
+		write(STDERR_FILENO, buf, _strlen(buf));
+		return (1);
+	}
+
+	return (0);
+}
+
+/**
  * _cd - Change the current working directory.
  * @sh: A pointer to the global variables structure
  *      containing the command tokens
@@ -146,27 +188,21 @@ int _cd(g_var **sh)
 	DIR *dir = NULL;
 
 	if ((*sh)->num_tokens > 3)
-	{
 		return (0);
-	}
 	getcwd(cwd, 120);
 	arg = (*sh)->tokens[1];
 	if ((*sh)->num_tokens == 2 || (arg && arg[0] == '\0'))
-	{
 		arg = _getenv("HOME");
+	else if (_strcmp(arg, "-") == 0)
+	{
+		arg = _getenv("OLDPWD");
+		if (arg == NULL || arg[0] == '\0')
+			arg = _getenv("HOME");
 	}
-	else
-		if (_strcmp(arg, "-") == 0)
-		{
-			arg = _getenv("OLDPWD");
-
-			if (arg == NULL || arg[0] == '\0')
-			{
-				arg = _getenv("HOME");
-			}
-		}
 	dir = opendir(arg);
 	if (dir == NULL)
+		return (1);
+	if (check_file_permissions(arg, sh))
 		return (1);
 	if (chdir(arg) == -1)
 	{
@@ -178,7 +214,6 @@ int _cd(g_var **sh)
 	{
 		_set(sh, "OLDPLW", cwd);
 		_set(sh, "PWD", arg);
-		/* free(arg); */
 	}
 	closedir(dir);
 	return (0);

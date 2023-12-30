@@ -78,6 +78,7 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 	{
 		sh->fl_pip = 2;
 		result = get_built_in(sh, tm[0])(&sh);
+
 		switch (result)
 		{
 			case 2:
@@ -110,6 +111,32 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 		}
 		return (1);
 	}
+	return (0);
+}
+/**
+ * process_semicolon_cmd - Process a command if the token contains a semicolon.
+ * @temp: temporary string
+ * @head: head of a list
+ * @sh: gloabal variables
+ * @h: list of commands
+ * @arr: array of strings
+ * @size_a: size of the array
+ * Return: returns 1 if semi colon present else 0;
+ */
+int process_semicolon_cmd(char *temp, cmd_list **head, g_var *sh,
+cmd_n_list **h, char **arr, int size_a)
+{
+	if (check_semicolon_tk(temp, head))
+	{
+		process_commands(*head, sh, h);
+		sh->process_id++;
+		free_list_cmd(head);
+		free_arr(&arr, size_a);
+		free(temp);
+		arr = NULL;
+		free(sh->command);
+		return (1);
+	}
 
 	return (0);
 }
@@ -122,22 +149,24 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 void process_tokens(g_var *sh, ppl **p)
 {
 	char **tm = NULL, *temp = NULL, *tem =  NULL, *ch = NULL, *ch1 = NULL;
+	cmd_n_list **h = NULL;
+	cmd_list *head = NULL;
 	size_t size_a = 0, j = 0;
 	int i = 0;
 
-	for (i = 0; i < sh->num_tokens - 1; ++i)
+	for (i = 0; i < sh->num_tokens - 1; ++i, tm = NULL, sh->command = NULL)
 	{
-		tm = NULL;
 		remove_emptyspaces(&sh->tokens[i]);
 		temp = _strdup(sh->tokens[i]);
 		size_a = tokenize(&tm, sh->tokens[i], " ");
+		if (process_semicolon_cmd(temp, &head, sh, h, tm, size_a))
+			continue;
 		if (process_builtin(sh, tm, temp, size_a, *p))
 		{
-
 		}
 		else
 		{
-			for (j = 1; j < size_a - 1; j++)
+			for (j = 1; j < size_a - 1; j++, free(tem))
 			{
 				tem = _strdup(tm[j]);
 				if (tem && _strpbrk(tem, "$"))
@@ -148,7 +177,6 @@ void process_tokens(g_var *sh, ppl **p)
 					free(tm[j]);
 					tm[j] = ch1;
 				}
-				free(tem);
 			}
 			sh->command = check_cmd_exist(tm[0]);
 			if (sh->command != NULL)
@@ -157,7 +185,6 @@ void process_tokens(g_var *sh, ppl **p)
 				not_found(sh, sh->prog_name, tm[0], sh->process_id, "not found");
 			free_arr(&tm, size_a);
 			free(sh->command);
-			sh->command = NULL;
 		}
 		free(temp);
 	}

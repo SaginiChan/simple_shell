@@ -631,6 +631,15 @@ int _atoi(char *str);
 /* END OF STRING TO INT */
 /*CHECK STAGES*/
 /**
+ * check_semicolon_tk - it checks if colon exists if
+ *                   exists breaks the command into list
+ * @string: string in struct
+ * @head: head of the list;
+ *
+ * Return: return 1 if semicolon found and 0 otherwise
+*/
+int check_semicolon_tk(char *string, cmd_list **head);
+/**
  * hasSymbols - it checks if symbols exists if
  *                   exists breaks the command into list
  * @sh: global variable in struct
