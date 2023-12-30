@@ -170,7 +170,8 @@ int check_semicolon_tk(char *string, cmd_list **head)
 
 		while (str)
 		{
-			add_node_end(head, str);
+			if (strcmp(str, "") != 0)
+				add_node_end(head, str);
 			str = _strtok(NULL, ";");
 		}
 
