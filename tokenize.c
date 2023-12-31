@@ -77,7 +77,6 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 	{
 		sh->fl_pip = 2;
 		result = get_built_in(sh, tm[0])(&sh);
-
 		switch (result)
 		{
 			case 2:
@@ -96,7 +95,8 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 				_printenv(&sh);
 				break;
 			case 5:
-				setenv(tm[0], tm[1], 1);
+				if (tm[1])
+					setenv(tm[0], tm[1], 1);
 				free_arr(&tm, size_a);
 				sh->fl_pip = 8;
 				break;
