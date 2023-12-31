@@ -615,6 +615,14 @@ int _setenv(g_var **sh);
  */
 int _unsetenv(g_var **sh);
 /**
+ * _unsetenv_p - it Remove environment var for the current proccess
+ *
+ * @str: string to be unset.
+ * @env: evironment variables
+ * Return: return 0 if success and -1 if faild
+ */
+int _unsetenv_p(char *str, char **env);
+/**
  * _getenv - Gets the value of an environment variable.
  * @var: The environment variable to retrieve.
  * Return: The value of the environment variable if found, NULL otherwise.
