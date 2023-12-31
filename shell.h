@@ -623,6 +623,34 @@ int _unsetenv(g_var **sh);
  */
 int _unsetenv_p(char *str, char **env);
 /**
+ * __setenv - it set environment var for the current proccess
+ *
+ * @sh: global variable containig variable to be set.
+ * @tm: array of arguments
+ * Return: returns 0 on success and -1 on error
+ */
+int __setenv(g_var **sh, char **tm);
+/**
+ * _add_environment_variable - Add a new environment variable.
+ * @sh: Pointer to the shell structure.
+ * @env: environment variables
+ * @n_tty: create an array of command if ait a non terminal
+ * @i: loop tracker
+ * Return: 0 on success, 1 on failure.
+ */
+int _add_environment_variable(g_var **sh, char **env, int *i, char **n_tty);
+/**
+ * _update_pointers - Updates environment pointers in the current process.
+ *
+ * @sh: Global variable containing pointers to be updated.
+ * @env: Array of environment variables.
+ * @i: index of envs
+ * @n_tty: create an array of command if ait a non terminal
+ * Return:
+ * Returns 1 if a new environment variable is added, 0 otherwise.
+ */
+int _update_pointers(g_var **sh, char **env, int *i, char **n_tty);
+/**
  * _getenv - Gets the value of an environment variable.
  * @var: The environment variable to retrieve.
  * Return: The value of the environment variable if found, NULL otherwise.
