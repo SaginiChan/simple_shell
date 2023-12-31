@@ -95,7 +95,7 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 				_printenv(&sh);
 				break;
 			case 5:
-				if (tm[2])
+				if (size_a >= 4)
 					setenv(tm[1], tm[2], 1);
 				free_arr(&tm, size_a);
 				sh->fl_pip = 8;
