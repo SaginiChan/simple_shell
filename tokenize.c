@@ -102,9 +102,9 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 				_setenv(&sh);
 				break;
 			case 6:
+				_unsetenv_p(tm[1], sh->environs);
 				free_arr(&tm, size_a);
 				sh->fl_pip = 8;
-				_unsetenv(&sh);
 				break;
 			default:
 				break;

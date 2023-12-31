@@ -62,6 +62,7 @@ int hasSymbols(g_var **sh)
 void process_hsh_sym(g_var **sh)
 {
 	int pos = 0, i = 0, space = 0, flag = 0, len = 0, j = 1;
+	char *temp = NULL;
 
 	while ((*sh)->tokens && (*sh)->tokens[i])
 	{
@@ -78,7 +79,6 @@ void process_hsh_sym(g_var **sh)
 		i++;
 	}
 
-
 	if (flag == 1)
 	{
 		free((*sh)->buffer);
@@ -88,18 +88,19 @@ void process_hsh_sym(g_var **sh)
 		(*sh)->buffer = _calloc(len + space, sizeof(char));
 		i = 0;
 		j = 1;
-
 		while (j < space)
 		{
-			_strcat((*sh)->buffer, (*sh)->tokens[i]);
+			temp = _strdup((*sh)->tokens[i]);
+			_strcat((*sh)->buffer, temp);
 			_strcat((*sh)->buffer, " ");
+			free(temp);
 			i++;
 			j++;
 		}
-
-		_strcat((*sh)->buffer, (*sh)->tokens[i]);
+		temp = _strdup((*sh)->tokens[i]);
+		_strcat((*sh)->buffer, temp);
+		free(temp);
 	}
-
 }
 /**
  * input_check - checks if command is complete
