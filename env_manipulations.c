@@ -171,7 +171,7 @@ int _change_dir(g_var **sh, char **toks, int size_a)
 			arg = getenv("OLDPWD");
 
 			if (arg == NULL || !arg)
-				arg = getenv("HOME");
+				arg = getenv("PWD");
 
 			flg = 1;
 		}
