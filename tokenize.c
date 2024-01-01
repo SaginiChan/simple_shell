@@ -78,7 +78,7 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 	{
 		sh->fl_pip = 2;
 		result = get_built_in(sh, tm[0])(&sh);
-		process_switch(sh, tm, temp, size_a, p, result);
+		process_sw(sh, tm, temp, size_a, p, result);
 		return (1);
 	}
 
