@@ -8,7 +8,7 @@
 */
 cmd_n_list *add_node_end_sym(cmd_n_list **head, const char *str, char *sym)
 {
-	char *strd = _strdup((char *)str);
+	char *strd = NULL;
 	int len = 0;
 	cmd_n_list *temp = malloc(sizeof(cmd_n_list)), *ptr;
 
@@ -18,7 +18,7 @@ cmd_n_list *add_node_end_sym(cmd_n_list **head, const char *str, char *sym)
 	}
 
 	ptr = *head;
-
+	strd = _strdup((char *)str);
 	if (strd == NULL)
 		len = 0;
 	else

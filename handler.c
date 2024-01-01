@@ -1,18 +1,24 @@
 #include "shell.h"
 
 /**
- * sigint_handler - Handles the SIGINT signal.
- * @sig: The signal number.
+ * cleanup_exit - Clean up resources and exit the shell.
+ * @sh: A pointer to the global variables structure.
+ * @shell: A double pointer to the shell structure.
+ * @status: The exit status code.
+ * @sh: Pointer to the global variables structure.
+ * @shell: Double pointer to the shell structure.
+ * @status: Exit status code.
  */
-void sigint_handler(int sig)
+void cleanup_exit(g_var *sh, g_var **shell, int status)
 {
-	int flag = 0;
-
-	if (sig == SIGINT || flag == 0)
-	{
-		(void)sig;
-		flag = 1;
-	}
+	free_arr(&(sh->tokens), sh->num_tokens);
+	free_arr(&(sh->alias), sh->alias_size);
+	free_arr(&(sh->pointers), sh->added_envs);
+	free_arr(&(sh->pip_cmds), sh->pip_num);
+	free(sh->buf_pi);
+	cleanup(sh);
+	*shell = NULL;
+	exit(status);
 }
 /**
  * refresh - clean up the varable used before next iteration.
@@ -66,7 +72,11 @@ void cleanup(g_var *shell)
 		free(shell->buffer);
 		shell->buffer = NULL;
 	}
-
+	if (shell->buf_pi != NULL)
+	{
+		free(shell->buf_pi);
+		shell->buffer = NULL;
+	}
 	/* free(shell->PATH); */
 	shell->nread = 0;
 	shell->num_tokens = 0;
@@ -82,8 +92,8 @@ void cleanup(g_var *shell)
 int exiting(g_var **shell)
 {
 	int status = 0;
-	char *str = NULL;
 	g_var *sh = *shell;
+	char *str = NULL, *name = sh->prog_name;
 
 	str = sh->tokens[1];
 
@@ -105,26 +115,18 @@ int exiting(g_var **shell)
 		}
 		else
 		{
-			illegal_no(sh->prog_name, sh->tokens[0], sh->process_id, "Illegal number", str);
+			illegal_no(name, sh->tokens[0], sh->process_id, "Illegal number", str);
 			free_arr(&(sh->tokens), sh->num_tokens);
 			free_arr(&(sh->pip_cmds), sh->pip_num);
 			free(sh->buf_pi);
 			cleanup(sh);
 			free(*shell);
-			exit (2);
+			exit(2);
 		}
 	}
 	else
 	{
-		free_arr(&(sh->tokens), sh->num_tokens);
-		free_arr(&(sh->alias), sh->alias_size);
-		free_arr(&(sh->pointers), sh->added_envs);
-		free_arr(&(sh->pip_cmds), sh->pip_num);
-		free(sh->buf_pi);
-		cleanup(sh);
-		status = sh->status_code;
-		free(*shell);
-		exit(status);
+		cleanup_exit(sh, shell, status);
 	}
 	return (-1);
 }

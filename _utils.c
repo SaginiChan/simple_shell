@@ -42,24 +42,23 @@ int _change_dir_actions(g_var **sh, const char *arg, int flg)
 }
 
 /**
- * process_switch - Process the result of a built-in command.
+ * process_sw - Process the result of a built-in command.
  * @sh: A pointer to the global variables structure.
  * @tm: An array of strings representing the command tokens.
  * @temp: A temporary string.
  * @size_a: The number of tokens in the command.
  * @p: A pointer to a structure representing the pipeline.
+ * @res: results option for switching
  * Return: 1 if processing was successful, 0 otherwise.
  */
-int process_switch(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
+int process_sw(g_var *sh, char **tm, char *temp, int size_a, ppl *p, int res)
 {
-	int result = 0;
-
-	switch (result)
+	switch (res)
 	{
 		case 2:
 			sh->command = _strdup(temp);
 			sh->fl_pip  = 8;
-			result = _echo(&sh);
+			res = _echo(&sh);
 			free_arr(&tm, size_a);
 			break;
 		case 3:

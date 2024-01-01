@@ -93,7 +93,7 @@ void shell_prompt(g_var **sh)
 	ppl *pipes = NULL;
 	char *p_nm = (*sh)->prog_name, *msg = "not found";
 
-	signal(SIGINT, sigint_handler);
+	/* signal(SIGINT, sigint_handler); */
 
 	while ((*sh)->PROMPT)
 	{

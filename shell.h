@@ -807,14 +807,24 @@ int _change_dir(g_var **sh, char **toks, int size_a);
  */
 int _change_dir_actions(g_var **sh, const char *arg, int flg);
 /**
- * process_switch - Process the result of a built-in command.
+ * process_sw - Process the result of a built-in command.
  * @sh: A pointer to the global variables structure.
  * @tm: An array of strings representing the command tokens.
  * @temp: A temporary string.
  * @size_a: The number of tokens in the command.
  * @p: A pointer to a structure representing the pipeline.
+ * @res: results option for switching
  * Return: 1 if processing was successful, 0 otherwise.
  */
-int process_switch(g_var *sh, char **tm, char *temp, int size_a, ppl *p);
+int process_sw(g_var *sh, char **tm, char *temp, int size_a, ppl *p, int res);
+/**
+ * cleanup_and_exit - Cleans up resources and exits the program.
+ * @sh: Pointer to the g_var structure.
+ * @tm: Pointer to the char array.
+ * @temp: Pointer to the char array.
+ * @size_a: The size of the char array.
+ * @p: Pointer to the ppl structure.
+ */
+void cleanup_and_exit(g_var *sh, char **tm, char *temp, int size_a, ppl *p);
 /* PIPES COMMANDS END */
 #endif /*SHELL_H*/
