@@ -61,7 +61,6 @@ void cleanup_and_exit(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 	sh->fl_pip = 8;
 }
 
-
 /**
  * process_builtin - Process built-in commands in the shell.
  * @sh: Pointer to the g_var structure.
@@ -79,39 +78,10 @@ int process_builtin(g_var *sh, char **tm, char *temp, int size_a, ppl *p)
 	{
 		sh->fl_pip = 2;
 		result = get_built_in(sh, tm[0])(&sh);
-		switch (result)
-		{
-			case 2:
-				sh->command = _strdup(temp);
-				sh->fl_pip  = 8;
-				result = _echo(&sh);
-				free_arr(&tm, size_a);
-				break;
-			case 3:
-				cleanup_and_exit(sh, tm, temp, size_a, p);
-				exiting(&sh);
-				return (1);
-			case 4:
-				free_arr(&tm, size_a);
-				sh->fl_pip = 8;
-				_printenv(&sh);
-				break;
-			case 5:
-				if (size_a >= 4)
-					__setenv(&sh, tm);
-				free_arr(&tm, size_a);
-				sh->fl_pip = 8;
-				break;
-			case 6:
-				unsetenv(tm[1]);
-				free_arr(&tm, size_a);
-				sh->fl_pip = 8;
-				break;
-			default:
-				break;
-		}
+		process_switch(sh, tm, temp, size_a, p);
 		return (1);
 	}
+
 	return (0);
 }
 /**

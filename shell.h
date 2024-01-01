@@ -592,6 +592,12 @@ void illegal_no(char *prog_name, char *com, int pr_id, char *msg, char *str);
  * @str: error messege
  */
 void usage_err(char *str);
+/**
+ * cd_error - Handles the "chane DIR" case.
+ * @prog_name: Name of the program.
+ * @arg: name of the directory.
+ */
+void cd_error(const char *arg, const char *prog_name);
 /* END ERROR HANDLING */
 /* BUILT INS*/
 /**
@@ -765,5 +771,48 @@ void handle_error(const char *message);
  * @h: pointer of pointer to a list.
  */
 void free_pip(ppl **h);
+/**
+ * _set - it set environment var for the current proccess
+ * @sh: set of gloabl variables
+ * @var:  to be set.
+ * @val: value to set
+ * Return: returns 0 on success and -1 on error
+ */
+int _set(g_var **sh, char *var, char *val);
+/**
+ * check_file_permissions - Check file permissions and handle error if needed.
+ * @arg: directory path
+ * @sh:  gloabl variables
+ * Return: Returns 1 if there's an error, 0 otherwise.
+ */
+int _check_file_permissions(const char *arg, g_var *sh);
+
+/**
+ * _change_dir - Change the current working directory.
+ * @sh: A pointer to the global variables structure
+ *      containing the command tokens
+ * and environment variables.
+ *
+ * Return: 0 on success, -1 on failure.
+ */
+int _change_dir(g_var **sh, char **toks, int size_a);
+/**
+ * _change_dir_actions - Perform the actions for changing the directory.
+ * @sh: A pointer to the global variables structure.
+ * @arg: The argument representing the new directory.
+ * @flg: Flag indicating whether to print the new directory.
+ * Return: 0 on success, 1 on failure.
+ */
+int _change_dir_actions(g_var **sh, const char *arg, int flg);
+/**
+ * process_switch - Process the result of a built-in command.
+ * @sh: A pointer to the global variables structure.
+ * @tm: An array of strings representing the command tokens.
+ * @temp: A temporary string.
+ * @size_a: The number of tokens in the command.
+ * @p: A pointer to a structure representing the pipeline.
+ * Return: 1 if processing was successful, 0 otherwise.
+ */
+int process_switch(g_var *sh, char **tm, char *temp, int size_a, ppl *p);
 /* PIPES COMMANDS END */
 #endif /*SHELL_H*/

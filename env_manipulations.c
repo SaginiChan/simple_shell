@@ -96,6 +96,7 @@ int __setenv(g_var **sh, char **tm)
 	{
 		return (1);
 	}
+
 	if (_update_pointers(sh, env, &i, tm))
 	{
 	}
@@ -104,5 +105,79 @@ int __setenv(g_var **sh, char **tm)
 		_add_environment_variable(sh, env, &i, tm);
 		env[i + 1] = NULL;
 	}
+
 	return (0);
+}
+/**
+ * _check_file_permissions - Check file permissions and handle error if needed.
+ * @arg: directory path
+ * @sh:  gloabl variables
+ * Return: Returns 1 if there's an error, 0 otherwise.
+ */
+int _check_file_permissions(const char *arg, g_var *sh)
+{
+	struct stat fs;
+	int r  = 0;
+
+	r = stat(arg, &fs);
+
+	if (r == -1)
+	{
+		cd_error(arg, sh->prog_name);
+		return (2);
+	}
+
+	if (stat(arg, &fs) == -1)
+	{
+		perror("stat");
+		return (1);
+	}
+
+	if ((fs.st_mode & S_IRUSR) ||
+(fs.st_mode & S_IWUSR) || (fs.st_mode & S_IXUSR))
+	{
+		cd_error(arg, sh->prog_name);
+		return (1);
+	}
+
+	return (0);
+}
+
+/**
+ * _change_dir - Change the current working directory.
+ * @sh: A pointer to the global variables structure
+ *      containing the command tokens
+ * and environment variables.
+ * @toks: array of tokens
+ * @size_a: size of the array
+ *
+ * Return: 0 on success, -1 on failure.
+ */
+int _change_dir(g_var **sh, char **toks, int size_a)
+{
+	char *arg = NULL;
+	int flg = 0;
+
+	if (size_a > 3)
+		return (0);
+
+	arg = toks[1];
+
+	if (size_a == 2 || !arg)
+		arg = getenv("HOME");
+	else
+		if (_strcmp(arg, "-") == 0)
+		{
+			arg = getenv("OLDPWD");
+
+			if (arg == NULL || !arg)
+				arg = getenv("HOME");
+
+			flg = 1;
+		}
+
+	if (!arg)
+		return (1);
+
+	return (_change_dir_actions(sh, arg, flg));
 }

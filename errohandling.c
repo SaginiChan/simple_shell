@@ -1,5 +1,5 @@
 #include "shell.h"
-
+#define BUFS 1024
 /**
  * int_To_Str - Converts an integer to a string.
  * @str: Pointer to the destination string.
@@ -98,4 +98,34 @@ void usage_err(char *str)
 
 	write(STDERR_FILENO, str, len);
 	_puts("\n");
+}
+/**
+ * cd_error - Handles the "chane DIR" case.
+ * @prog_name: Name of the program.
+ * @arg: name of the directory.
+ */
+void cd_error(const char *arg, const char *prog_name)
+{
+    char buf[BUFS];
+    char *name = (char *)malloc(BUFS);
+
+    if (name == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(name, 0, BUFS);
+    memcpy(name, prog_name, BUFS);
+    memset(buf, 0, BUFS);
+    _strcat(buf, name);
+    _strcat(buf, ": ");
+    _strcat(buf, "1: ");
+    _strcat(buf, "cd: ");
+    _strcat(buf, "can't cd to ");
+    _strcat(buf, (char *)arg);
+    _strcat(buf, "\n");
+
+    write(STDERR_FILENO, buf, _strlen(buf));
+
+    free(name);
 }
