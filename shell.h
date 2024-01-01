@@ -792,6 +792,8 @@ int _check_file_permissions(const char *arg, g_var *sh);
  * @sh: A pointer to the global variables structure
  *      containing the command tokens
  * and environment variables.
+ * @toks: array of tokens
+ * @size_a: size of the array
  *
  * Return: 0 on success, -1 on failure.
  */
