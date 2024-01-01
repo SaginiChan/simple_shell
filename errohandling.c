@@ -106,26 +106,27 @@ void usage_err(char *str)
  */
 void cd_error(const char *arg, const char *prog_name)
 {
-    char buf[BUFS];
-    char *name = (char *)malloc(BUFS);
+	char buf[BUFS];
+	char *name = (char *)malloc(BUFS);
 
-    if (name == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
+	if (name == NULL)
+	{
+		fprintf(stderr, "Error: Memory allocation failed\n");
+		exit(EXIT_FAILURE);
+	}
 
-    memset(name, 0, BUFS);
-    memcpy(name, prog_name, BUFS);
-    memset(buf, 0, BUFS);
-    _strcat(buf, name);
-    _strcat(buf, ": ");
-    _strcat(buf, "1: ");
-    _strcat(buf, "cd: ");
-    _strcat(buf, "can't cd to ");
-    _strcat(buf, (char *)arg);
-    _strcat(buf, "\n");
+	memset(name, 0, BUFS);
+	memcpy(name, prog_name, BUFS);
+	memset(buf, 0, BUFS);
+	_strcat(buf, name);
+	_strcat(buf, ": ");
+	_strcat(buf, "1: ");
+	_strcat(buf, "cd: ");
+	_strcat(buf, "can't cd to ");
+	_strcat(buf, (char *)arg);
+	_strcat(buf, "\n");
 
-    write(STDERR_FILENO, buf, _strlen(buf));
+	write(STDERR_FILENO, buf, _strlen(buf));
 
-    free(name);
+	free(name);
 }
