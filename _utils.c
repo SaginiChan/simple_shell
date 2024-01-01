@@ -10,7 +10,7 @@
 int _change_dir_actions(g_var **sh, const char *arg, int flg)
 {
 	DIR *dir = opendir(arg);
-	char cwd[BUF_SIZE] = {0};
+	char cwd[BUF_SIZE] = {0}, *pwd = NULL, *oldpwd = NULL;
 
 	if (dir == NULL)
 	{
@@ -27,8 +27,12 @@ int _change_dir_actions(g_var **sh, const char *arg, int flg)
 	}
 	else
 	{
-		_set(sh, "OLDPLW", getcwd(cwd, BUF_SIZE));
-		_set(sh, "PWD", (char *)arg);
+		/* _set(sh, "OLDPLW", getcwd(cwd, BUF_SIZE)); */
+		pwd = "PWD";
+		oldpwd = "OLDPWD";
+		setenv(pwd, (char *)arg, 1);
+		setenv(oldpwd, getcwd(cwd, BUF_SIZE), 1);
+		/* _set(sh, "PWD", (char *)arg); */
 	}
 
 	if (flg == 1)
