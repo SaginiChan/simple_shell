@@ -103,12 +103,18 @@ void usage_err(char *str)
  * cd_error - Handles the "chane DIR" case.
  * @prog_name: Name of the program.
  * @arg: name of the directory.
+ * @pr_id: the currentt process id
  */
-void cd_error(const char *arg, const char *prog_name)
+void cd_error(const char *arg, const char *prog_name, int pr_id)
 {
 	char buf[BUFS];
 	char *name = (char *)malloc(BUFS);
+	char *string = malloc(sizeof(char) * 4);
+	int len = 0;
 
+	_memset(string, 0, 4);
+	len = int_len(pr_id);
+	str_buff(&string, pr_id, len);
 	if (name == NULL)
 	{
 		fprintf(stderr, "Error: Memory allocation failed\n");
@@ -120,13 +126,14 @@ void cd_error(const char *arg, const char *prog_name)
 	memset(buf, 0, BUFS);
 	_strcat(buf, name);
 	_strcat(buf, ": ");
-	_strcat(buf, "1: ");
+	_strcat(buf, string);
+	_strcat(buf, ": ");
 	_strcat(buf, "cd: ");
 	_strcat(buf, "can't cd to ");
 	_strcat(buf, (char *)arg);
 	_strcat(buf, "\n");
 
 	write(STDERR_FILENO, buf, _strlen(buf));
-
+	free(string);
 	free(name);
 }

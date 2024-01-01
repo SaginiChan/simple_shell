@@ -596,8 +596,9 @@ void usage_err(char *str);
  * cd_error - Handles the "chane DIR" case.
  * @prog_name: Name of the program.
  * @arg: name of the directory.
+ * @pr_id: the currentt process id
  */
-void cd_error(const char *arg, const char *prog_name);
+void cd_error(const char *arg, const char *prog_name, int pr_id);
 /* END ERROR HANDLING */
 /* BUILT INS*/
 /**

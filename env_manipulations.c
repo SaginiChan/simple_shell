@@ -123,7 +123,7 @@ int _check_file_permissions(const char *arg, g_var *sh)
 
 	if (r == -1)
 	{
-		cd_error(arg, sh->prog_name);
+		cd_error(arg, sh->prog_name, sh->process_id);
 		return (2);
 	}
 
@@ -136,7 +136,7 @@ int _check_file_permissions(const char *arg, g_var *sh)
 	if ((fs.st_mode & S_IRUSR) ||
 (fs.st_mode & S_IWUSR) || (fs.st_mode & S_IXUSR))
 	{
-		cd_error(arg, sh->prog_name);
+		cd_error(arg, sh->prog_name, sh->process_id);
 		return (1);
 	}
 

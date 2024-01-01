@@ -15,7 +15,7 @@ int _change_dir_actions(g_var **sh, const char *arg, int flg)
 	oldpwd = getcwd(cwd, BUF_SIZE);
 	if (dir == NULL)
 	{
-		cd_error(arg, (*sh)->prog_name);
+		cd_error(arg, (*sh)->prog_name, (*sh)->process_id);
 		closedir(dir);
 		return (1);
 	}
