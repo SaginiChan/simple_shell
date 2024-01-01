@@ -128,6 +128,8 @@ int _setenv(g_var **sh)
 		free(rep);
 	return (0);
 }
+
+
 /**
  * _unsetenv - it Remove environment var for the current proccess
  *
@@ -195,8 +197,12 @@ int _printenv(g_var **sh)
 
 	while (env[i] != NULL)
 	{
-		_puts(env[i]);
-		_puts("\n");
+		remove_emptyspaces(&env[i]);
+		if (strcmp(env[i], "") != 0)
+		{
+			printf("%s\n", env[i]);
+		}
+		/* _puts("\n"); */
 		i++;
 	}
 

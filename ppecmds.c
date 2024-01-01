@@ -41,7 +41,6 @@ int process_special_cases1(g_var **sh, cmd_list **head, cmd_n_list **h)
 
 	exit(0);
 }
-
 /**
  * processCommand - Process the command by tokenizing and executing it.
  * @sh: Pointer to the Shell structure.
@@ -59,6 +58,7 @@ void processCommand(g_var **sh, char *tmp, ppl **p)
 		(*sh)->command = NULL;
 		rplaceSp((*sh)->buf_pi);
 		remove_emptyspaces(&(*sh)->buf_pi);
+		free_arr(&(*sh)->tokens, (*sh)->num_tokens);/* added new */
 		(*sh)->num_tokens = tokenize(&((*sh)->tokens), (*sh)->buf_pi, "\n");
 		free(tmp);
 		process_tokens(*sh, p);
@@ -123,7 +123,7 @@ static int process_sle(g_var *sh, cmd_n_list **head, ppl *p)
 		free_arr(&(sh->tokens), sh->num_tokens);
 		sh->command  = _strdup(p->str);
 		sh->num_tokens = tokenize(&(sh->tokens), sh->command, " ");
-
+		/* printf("STILL SYMBOLS %s\n", sh->buffer); */
 		if (hasSymbols(&sh))
 		{
 			check_symbols(&sh, head);

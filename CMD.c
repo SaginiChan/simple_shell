@@ -117,11 +117,11 @@ void shell_prompt(g_var **sh)
 		}
 		if (process_special_cases(sh, &head, &h, pipes) == 1)
 			continue;
-
 		(*sh)->command = check_cmd_exist((*sh)->tokens[0]);
 		if ((*sh)->command)
 		{
 			execute(*sh, (*sh)->tokens, (*sh)->environs);
+			cleanup_and_free_tokens(*sh);
 			continue;
 		}
 		else

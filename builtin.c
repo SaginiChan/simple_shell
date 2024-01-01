@@ -187,17 +187,22 @@ int _cd(g_var **sh)
 	char *arg = NULL, cwd[120] = {0};
 	DIR *dir = NULL;
 
+	if ((*sh)->fl_pip == 2)
+	{
+		return (7);
+	}
+
 	if ((*sh)->num_tokens > 3)
 		return (0);
 	getcwd(cwd, 120);
 	arg = (*sh)->tokens[1];
 	if ((*sh)->num_tokens == 2 || (arg && arg[0] == '\0'))
-		arg = _getenv("HOME");
+		arg = getenv("HOME");
 	else if (_strcmp(arg, "-") == 0)
 	{
-		arg = _getenv("OLDPWD");
+		arg = getenv("OLDPWD");
 		if (arg == NULL || arg[0] == '\0')
-			arg = _getenv("HOME");
+			arg = getenv("HOME");
 	}
 	dir = opendir(arg);
 	if (dir == NULL)
